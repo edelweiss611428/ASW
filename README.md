@@ -2,9 +2,9 @@
 
 ### Motivation
 <p align="justify"> 
-The Average Silhouette Width (ASW) is a popular internal clustering validation index used to measure clustering quality and determine an optimal number of clusters. There have been only a few proposals in the literature, such as the Optimum Silhouette (OSil) algoritm and the PAMSil algorithm, using the ASW as an objective function in cost-based clustering. OSil and PAMSil are computationally expensive with $\mathcal{O}(qkN^3)$ time complexity, where $q$ is the number of iterations needed for convergence, $k$ is the number of clusters, and $N$ is the dataset size. Moreover, for large datasets, $q$ can be really large. Consequently, both PAMSil and OSil are only suitable for clustering small datasets. 
-
-We have proposed a new algorithm called Efficient Optimum Silhouette (effOSil), which performs the exact OSil algorithm but $\mathcal{O}(N)$ times faster than the original OSil algorithm at the cost of storing $\mathcal{O}(N)$ additional values.
+The Average Silhouette Width (ASW) is a popular internal clustering validation index used to measure clustering quality and determine an optimal number of clusters. There have been only a few proposals in the literature, such as the Optimum Silhouette (OSil) algoritm and the PAMSil algorithm, using the ASW as an objective function in cost-based clustering. OSil and PAMSil are computationally expensive with $\mathcal{O}(qkN^3)$ time complexity, where $q$ is the number of iterations needed for convergence, $k$ is the number of clusters, and $N$ is the dataset size. Moreover, for large datasets, $q$ can be really large. Consequently, both PAMSil and OSil are only suitable for clustering small datasets. </p>
+<p align="justify"> 
+We have proposed a new algorithm called Efficient Optimum Silhouette (effOSil), which performs the exact OSil algorithm but $\mathcal{O}(N)$ times faster than the original OSil algorithm at the cost of storing $\mathcal{O}(N)$ additional values. </p>
 
 </p>
 
