@@ -1,4 +1,4 @@
-# Efficient and Scalable Algorithms for Optimizing the Average Silhouette Width
+# Efficient and Scalable Clustering Algorithms for Optimizing the Average Silhouette Width
 
 ### Description
 
