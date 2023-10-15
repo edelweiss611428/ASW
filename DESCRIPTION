@@ -12,4 +12,4 @@ RoxygenNote: 7.2.3
 LinkingTo: Rcpp
 Imports: Rcpp, cluster, stats
 NeedsCompilation: yes
-Packaged: 2023-10-15 20:55:31 UTC; longn
+Packaged: 2023-10-15 22:42:23 UTC; longn

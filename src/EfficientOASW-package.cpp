@@ -339,42 +339,8 @@ void UpdateUCT(NumericVector UCTdist, NumericVector dist, int N, int k, int i, i
   }
 }
 
-//UpdateUCT(): Update a,b,s terms after finding the best swap (k=3)
-void UpdateABS(IntegerVector C, NumericVector UCTdist, int N, int k, IntegerVector Nj, NumericVector ai, NumericVector bi, NumericVector si,
-               IntegerVector lbi, IntegerVector lsi){
 
-  int li;
-  int ik;
-  NumericVector diC(k-1);
-  IntegerVector ldiC(k-1);
-
-  for(int i = 0; i < N; i++){
-
-    ik = i*k;
-    li = C[i];
-    int l = 0;
-    for(int j = 0; j < k; j++){
-      if(j != li){
-        diC[l] = UCTdist[ik+j]/Nj[j];
-        ldiC[l] = j;
-        l++;
-      }
-    }
-    //space for readability
-
-    BSCalc(diC, ldiC, k-1, bi[i], si[i], lbi[i], lsi[i]);
-
-
-    if(Nj[li] == 1){
-      ai[i] = NumericVector::get_na();
-      continue;
-    } else{
-      ai[i] = UCTdist[ik+li]/(Nj[li] - 1);
-    }
-  }
-}
-
-//UpdateUCT(): Update a,b,s,h terms after finding the best swap (k>3)
+//UpdateUCT(): Update a,b,s,h terms after finding the best swap (k>=3)
 void UpdateABSH(IntegerVector C, NumericVector UCTdist, int N, int k, IntegerVector Nj, NumericVector ai, NumericVector bi, NumericVector si, NumericVector hi,
                 IntegerVector lbi, IntegerVector lsi, IntegerVector lhi){
 
@@ -396,8 +362,12 @@ void UpdateABSH(IntegerVector C, NumericVector UCTdist, int N, int k, IntegerVec
       }
     }
     //space for readability
+    if(k == 3){
+      BSCalc(diC, ldiC, k-1, bi[i], si[i], lbi[i], lsi[i]);
+    } else{
+      BSHCalc(diC, ldiC, k-1, bi[i], si[i], hi[i], lbi[i], lsi[i], lhi[i]);
+    }
 
-    BSHCalc(diC, ldiC, k-1, bi[i], si[i], hi[i], lbi[i], lsi[i], lhi[i]);
 
     if(Nj[li] == 1){
       ai[i] = NumericVector::get_na();
@@ -585,9 +555,7 @@ List effOSilCpp(NumericVector dist, IntegerVector iC, int N, int k){
       initC[swappedPair[0]] = swappedPair[1];
       UpdateUCT(UCTdist, dist, N, k,
                 swappedPair[0], swappedPair[1], li);
-      if(k == 3){
-        UpdateABS(initC, UCTdist, N, k, Nj, ai, bi, si, lbi, lsi);
-      } else if(k > 3){
+      if(k >= 3){
         UpdateABSH(initC, UCTdist, N, k, Nj, ai, bi, si, hi, lbi, lsi, lhi);
       }
     }
