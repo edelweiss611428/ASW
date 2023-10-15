@@ -14,6 +14,13 @@ We have proposed a new algorithm called Efficient Optimum Silhouette (effOSil), 
 This R-package (EfficientOASW v.0.0.0.9000) implements the computationally expensive OSil algorithm and provides the $\mathcal{O}(N)$ times faster implementation of the exact OSil algorithm (effOSil). 
 </p>
 
+To download the package, use the following R code:
+
+```
+library(devtools)
+install_github("edelweiss611428/EfficientOASW") 
+```
+
 ### Future releases
 A new scalable approximation algorithm of OSil (scalOSil) for clustering and PAMSil will be implemented in the next releases.
 
