@@ -16,7 +16,7 @@ install_github("edelweiss611428/EfficientOASW")
 ```
 
 ### Future releases
-A new scalable approximation algorithm of OSil (scalOSil) for clustering, PAMSil, and PAMMedSil will be implemented in the next releases.
+A new scalable approximation algorithm of OSil called scalOSil, PAMSil, and PAMMedSil will be implemented in the next releases.
 
 ### References
 
