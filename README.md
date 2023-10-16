@@ -8,10 +8,7 @@ The Average Silhouette Width (ASW) is a popular internal clustering validation i
 ### Package description
 
 <p align="justify"> 
-This R-package (EfficientOASW v.0.0.0.9000) implements the computationally expensive OSil algorithm and provides the $\mathcal{O}(N)$ times faster implementation of the exact OSil algorithm (effOSil). 
-</p>
-
-To download the package, use the following R code:
+This R-package (EfficientOASW v.0.0.0.9000) implements the computationally expensive OSil algorithm and provides the $\mathcal{O}(N)$ times faster implementation of the exact OSil algorithm (effOSil). To download the package, use the following R code: </p> 
 
 ```
 library(devtools)
