@@ -11,7 +11,7 @@ We have proposed a new algorithm called Efficient Optimum Silhouette (effOSil), 
 ### Package description
 
 <p align="justify"> 
-This R-package (EfficientOASW v.0.0.0.9000) implements the computationally expensive OSil algorithm and provides the $\mathcal{O}(N)$ times faster implementation of the exact OSil algorithm (effOSil). 
+This R-package (EfficientOASW v.0.0.0.9000) implements the computationally expensive OSil algorithm and the $\mathcal{O}(N)$ times faster effOSil algorithm. 
 </p>
 
 To download the package, use the following R code:
