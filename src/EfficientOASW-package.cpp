@@ -639,3 +639,7 @@ List OSilCpp(NumericVector dist, IntegerVector iC, int N, int k){
 
   return List::create(Named("Clustering") = initC+1L, _["ASW"] = bestASW,  _["nIter"] = iter);
 }
+
+
+
+
