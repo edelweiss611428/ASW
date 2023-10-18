@@ -35,7 +35,7 @@
 OSil = function(dist, k, initClustering = NULL, initMethod = "average"){
 
   if(inherits(dist, "dist") == TRUE){
-    N = (1+sqrt(1+8*length(dist)))/2
+    N = attr(dist, "Size")
   } else{
     stop("OSil only inputs a distance matrix of class 'dist'")
   }
