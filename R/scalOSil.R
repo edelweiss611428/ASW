@@ -84,13 +84,12 @@ scalOSil = function(dx, k, n = "default", rep = 5, initMethod = "average"){
     idxVec = sample.int(N)
     idxPC = idxVec[1:n]
     idxC = idxVec[(n+1):N]
-    dx1 = .subDistCpp(dx, idxPC, FALSE, FALSE, N = N, n = n)
+    dx1 = .subDistCpp(dx, idxPC-1L, FALSE, FALSE, N = N, n = n)
     iC = Init(dx1, k, initMethod)$Clustering -1L
     PCres = .scalOSil_PC(dx1, iC, n, k)
     FCres = .scalOSil_C(dx,k, PCres, idxPC-1L, idxC-1L, n, N-n, N)
     FCres[idxVec] = FCres
     tempASW = .ASWCpp(FCres, dx, N,k)
-
     if(tempASW > bestASW){
       bestASW = tempASW
       bestClustering = FCres

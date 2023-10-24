@@ -122,7 +122,6 @@ Init = function(dx, k, initMethod = "average"){
     stop("initMethod contains unsupported methods!")
   }
 
-
   bestASW = -1
 
   for(i in seq_along(initMethod)){

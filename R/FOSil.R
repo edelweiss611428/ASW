@@ -83,7 +83,7 @@ FOSil = function(dx, k, n = "default", ns = 25, initMethod = "average"){
     tempidxVec = sample.int(N)
     tempidxPC = tempidxVec[1:n]
     tempidxC = tempidxVec[(n+1):N]
-    tempdx1 = .subDistCpp(dx, tempidxPC, FALSE, FALSE, N, n)
+    tempdx1 = .subDistCpp(dx, tempidxPC-1L, FALSE, FALSE, N, n)
 
     iC = Init(tempdx1, k, initMethod)$Clustering-1
 
