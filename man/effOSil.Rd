@@ -2,23 +2,21 @@
 % Please edit documentation in R/effOSil.R
 \name{effOSil}
 \alias{effOSil}
-\title{Efficient Optimum Silhouette Clustering Algorithm}
+\title{The Efficient Optimum Silhouette algorithm}
 \usage{
-effOSil(dist, k, initClustering = NULL, initMethod = "average")
+effOSil(dx, k, initClustering = NULL, initMethod = "average")
 }
 \arguments{
-\item{dist}{A "dist" object, which can be obtained by the "dist" function.}
+\item{dx}{A "dist" object, which can be obtained by the "dist" function.}
 
 \item{k}{The number of clusters.}
 
-\item{initClustering}{A user-specified initialized clustering. It must be an integer vector of
-k unique values 1,2,...,k. By defaualt, initClustering is set to NULL. If initClustering is NULL,
-initMethod is used; otherwise, initClustering is used.}
+\item{initClustering}{An initialized clustering. It must be an numeric vector of k unique values 1,2,...,k.
+By default, initClustering is set to NULL. If initClustering is NULL, initMethod is used instead; otherwise, initClustering is used.}
 
-\item{initMethod}{An initialization method. By default, effOSil uses average-linkage clustering
-("average") for initialization. Other options include well-established clustering algorithms
-such as Partition Around Medoids ("pam"), single-linkage clustering ("single"), complete-linkage
-clustering ("complete"), the Ward's method ("ward.D"), etc.}
+\item{initMethod}{A character vector specifying initialization methods. It must contain only supported methods:
+one of the two combined methods "multiple1" and "multiple2"; or any combination of of "pam", "average", "single",
+"complete", "ward.D", "ward.D2", "mcquitty", "median", and "centroid". See ?Init for more details.}
 }
 \value{
 \describe{
@@ -28,9 +26,21 @@ clustering ("complete"), the Ward's method ("ward.D"), etc.}
 }
 }
 \description{
-effOSil implements the exact Optimum Silhouette (OSil) algorithm. It is
-O(N) times faster than the original OSil algorithm at the cost of storing O(N) additional
-values.
+This function implements the exact Optimum Silhouette (OSil) algorithm.
+}
+\details{
+This function implements the exact Optimum Silhouette (OSil) algorithm proposed by Batool & Hennig (2021).
+However, it is O(N) times faster than the original OSil algorithm at the cost of storing O(N) additional values.
+}
+\examples{
+x = iris[,-5]
+dx = dist(x)
+effOSil_clustering = effOSil(dx, 3, initMethod = "average")
+plot(x, col = effOSil_clustering$Clustering)
+
+}
+\references{
+Batool, F. and Hennig, C., 2021. Clustering with the average silhouette width. Computational Statistics & Data Analysis, 158, p.107190.
 }
 \author{
 Minh Long Nguyen \email{edelweiss611428@gmail.com}
