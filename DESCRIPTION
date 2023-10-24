@@ -1,0 +1,17 @@
+Package: EfficientOASW
+Title: Efficient Clustering Algorithms for Optimizing the Average
+        Silhouette Width
+Version: 0.0.1
+Author: Minh Long Nguyen <edelweiss611428@gmail.com>
+Maintainer: Minh Long Nguyen <edelweiss611428@gmail.com>
+Description: This package implements the original Optimum Silhouette (OSil) clustering algorithm, an O(N) faster implementation of the exact OSil algorithm called Efficient Optimum Silhoutte (effOSil). This package also implements approximate algorithms of OSil and effOSil called Fast Optimum Silhoutte (FOSil) and Scalable Optimum Silhouette (scalOSil), respectively.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+LinkingTo: Rcpp
+Imports: Rcpp, cluster, stats
+Built: R 4.3.1; x86_64-w64-mingw32; 2023-10-24 16:01:46 UTC; windows
+Archs: x64
+NeedsCompilation: yes
+Packaged: 2023-10-24 17:07:37 UTC; longn
