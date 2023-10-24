@@ -22,7 +22,7 @@
 #'
 #' @details
 #' This function implements the exact Optimum Silhouette (OSil) algorithm proposed by Batool & Hennig (2021).
-#' However, it is O(N) times faster than the original OSil algorithm at the cost of storing O(N) additional values.
+#' However, it is O(N) times faster than the original OSil algorithm at the cost of storing O(kN) additional values.
 #'
 #'
 #' @examples
