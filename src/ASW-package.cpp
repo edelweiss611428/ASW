@@ -1189,3 +1189,149 @@ IntegerVector FOSil_C_Step(NumericVector dist, NumericVector distPC, int k, List
   return FC;
 
 }
+
+//5. The PAMSil algorithm
+
+
+//nearest_and_2nd_nearest() computes the  nearest and second nearest distances from each point to other medoids.
+void nearest_and_2nd_nearest(NumericVector dist, IntegerVector medoids, IntegerVector C1st, IntegerVector &C2nd, NumericVector &d1st, NumericVector &d2nd, int N, int k){
+
+  NumericVector diC(k-1);
+  IntegerVector ldiC(k-1);
+  int l;
+
+  int l1st;
+  int idx_min;
+
+  for(int i = 0; i < N; i++){
+    l1st = C1st[i];
+    l = 0;
+
+    for(int j = 0; j < k; j++){
+
+      if(l1st != j){
+
+        diC[l] = dist[indexing(N, i, medoids[j])];
+        ldiC[l] = j;
+        l++;
+
+      }
+
+    }
+
+    idx_min = which_min(diC);
+    C2nd[i] = ldiC[idx_min];
+    d2nd[i] = diC[idx_min];
+
+    if(i == medoids[l1st]){
+      d1st[i] = 0;
+    } else {
+      d1st[i] = dist[indexing(N, i, medoids[l1st])];
+    }
+  }
+}
+
+//swap_to_clustering() efficiently compute a clustering given a swap in O(N) time
+IntegerVector swap_to_clustering(NumericVector dist, IntegerVector medoids, IntegerVector C1st, IntegerVector C2nd, NumericVector d1st, NumericVector d2nd,
+                                 int N, int k, int s_i, int s_j){
+
+  IntegerVector C_new(N);
+  int li;
+  double td;
+
+  for(int i = 0; i < N; i++){
+    li = C1st[i];
+
+    if(i == s_i){
+      C_new[i] = s_j;
+      continue;
+    } else if(i == medoids[li]){
+      C_new[i] = li;
+      continue;
+    }
+
+    td = dist[indexing(N,i,s_i)];
+
+    if(li != s_j){
+
+      if(td < d1st[i]){
+        C_new[i] = s_j;
+      } else{
+        C_new[i] = li;
+      }
+
+    } else{
+
+      if(td < d2nd[i]){
+        C_new[i] = s_j;
+      } else{
+        C_new[i] = C2nd[i];
+      }
+    }
+
+  }
+
+  return C_new;
+
+}
+
+//PAMSilCpp() implements the PAMSil algorithm
+
+// [[Rcpp::export(.PAMSilCpp)]]
+List PAMSilCpp(NumericVector dist, IntegerVector C, IntegerVector medoids, int N, int k){
+
+  IntegerVector fC = clone(C);
+  IntegerVector fmedoids = clone(medoids);
+  IntegerVector tempC(N);
+  IntegerVector C2nd(N);
+  NumericVector d1st(N);
+  NumericVector d2nd(N);
+  nearest_and_2nd_nearest(dist, fmedoids, fC, C2nd, d1st, d2nd, N, k);
+  int iter = 0;
+  bool swap;
+  double tempASW;
+
+
+  double bestASW = ASWCpp(fC, dist, N, k);
+
+  do{
+    iter++;
+
+    swap = false;
+    IntegerVector swappedPair(2);
+
+
+    for(int i = 0; i < N; i++){
+      if(i == fmedoids[fC[i]]) continue;
+      for(int j = 0; j < k; j++){
+
+        tempC = swap_to_clustering(dist, medoids, fC, C2nd, d1st, d2nd, N, k, i, j);
+        tempASW = ASWCpp(tempC, dist, N, k);
+
+        if(tempASW > bestASW){
+
+          bestASW = tempASW;
+          swappedPair[0] = j;
+          swappedPair[1] = i;
+          swap = true;
+
+        }
+
+      }
+
+    }
+
+    if(swap){
+
+      fmedoids[swappedPair[0]] = swappedPair[1];
+      fC = swap_to_clustering(dist, fmedoids, fC, C2nd, d1st, d2nd, N, k, swappedPair[1], swappedPair[0]);
+      nearest_and_2nd_nearest(dist, fmedoids, fC, C2nd, d1st, d2nd, N, k);
+
+    }
+
+  } while (swap);
+
+  return List::create(Named("Clustering") = fC+1, _["medoids"] = fmedoids+1, _["ASW"] = bestASW,  _["nIter"] = iter);
+
+}
+

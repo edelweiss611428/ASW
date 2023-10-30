@@ -2,42 +2,39 @@
 % Please edit documentation in R/Init.R
 \name{Init}
 \alias{Init}
-\title{Initialization methods for Optimum Average Silhouette Width clustering algorithm}
+\title{Initialization methods for the Optimum Silhouette algorithm}
 \usage{
-Init(dx, k, initMethod = "average")
+Init(dx, k, initMethod)
 }
 \arguments{
-\item{dx}{A "dist" object, which can be obtained by the "dist" function.}
+\item{dx}{dx A "dist" object, which can be computed using stats::dist().}
 
-\item{k}{The number of clusters.}
+\item{k}{An integer scalar specifying the number of clusters.}
 
-\item{initMethod}{A character vector specifying initialization methods. It must contain only supported methods:
-one of the two combined methods "multiple1" and "multiple2"; or any combination of of "pam", "average", "single",
-"complete", "ward.D", "ward.D2", "mcquitty", "median", and "centroid".}
+\item{initMethod}{A character vector (or string) specifying initialization methods. Options include any
+combination of "pam", "average", "single", "complete", "ward.D", "ward.D2", "mcquitty", "median", and "centroid".
+By default, initMethod = "average".}
 }
 \value{
 \describe{
-\item{Clustering}{An initialized clustering.}
-\item{ASW}{The ASW associated with the initialized clustering.}
-\item{Method}{The "best" initialization method.}
+\item{clustering}{An initialized clustering.}
+\item{asw}{The ASW associated with the initialized clustering.}
+\item{method}{The "best" initialization method.}
 }
 }
 \description{
-This function computes an initialized clustering for Optimum Average Silhouette Width clustering algorithms
+This function computes an initialization for the Optimum Silhouette algorithm.
 }
 \details{
-This function computes an initialized clustering for Optimum Average Silhouette Width clustering algorithms
-by using the clustering methods specified by initMethod, and return the clustering maximize the ASW. The two combined methods
-"multiple1" and "multiple2" are:
-\describe{
-\item{"multiple1"}{PAM and average linkage.}
-\item{"multiple2"}{PAM, average linkage, single linkage, and the Ward's method (ward.D2).}
-}
+This function computes an initialization for the Optimum Silhouette algorithm, but it can be used as
+a stand-alone clustering method.
 }
 \examples{
-x = iris[,-5]
+x = faithful
 dx = dist(x)
-Init(dx,3,"multiple1")
+Initres = Init(dx, 2, c("pam", "average", "complete"))
+plot(x, col = Initres$clustering, pch = 4)
+print(paste(Initres$method, "achieves the highest ASW value"))
 
 }
 \references{

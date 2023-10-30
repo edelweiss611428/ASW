@@ -1,83 +1,114 @@
 #' @name effOSil
 #' @title The Efficient Optimum Silhouette algorithm
 #'
-#' @description  This function implements the exact Optimum Silhouette (OSil) algorithm.
+#' @description  This function implements the Efficient Optimum Silhouette (effOSil) algorithm.
 #'
-#' @usage effOSil(dx, k, initClustering = NULL, initMethod = "average")
+#' @usage effOSil(dx, K, initMethod, variant)
 #'
-#' @param dx  A "dist" object, which can be obtained by the "dist" function.
-#' @param k The number of clusters.
-#' @param initClustering An initialized clustering. It must be an numeric vector of k unique values 1,2,...,k.
-#' By default, initClustering is set to NULL. If initClustering is NULL, initMethod is used instead; otherwise, initClustering is used.
-#' @param initMethod A character vector specifying initialization methods. It must contain only supported methods:
-#' one of the two combined methods "multiple1" and "multiple2"; or any combination of of "pam", "average", "single",
-#' "complete", "ward.D", "ward.D2", "mcquitty", "median", and "centroid". See ?Init for more details.
+#' @param dx A "dist" object, which can be computed using stats::dist().
+#' @param K An integer vector (or scalar) specifying the numbers of clusters. By default, K = 2:12.
+#' @param initMethod A character vector (or string) specifying initialization methods.
+#' By default, initMethod = "average". See ?Init for more details.
+#' @param variant A character string specifying a variant. Options include "efficient" and "original".
+#' If variant = "original", the original OSil algorithm is used. If variant = "efficient", effOSil is used.
+#' By default, variant = "efficient".
 #'
 #' @return
 #' \describe{
-#' \item{Clustering}{The OSil clustering solution.}
-#' \item{ASW}{The ASW associated with the OSil clustering.}
-#' \item{nIter}{The number of iterations needed for convergence.}
+#' \item{best_clustering}{The effOSil clustering achieving the highest ASW value.}
+#' \item{best_asw}{The highest ASW value.}
+#' \item{k}{The estimated number of clusters.}
+#' \item{clusterings}{The effOSil clustering solutions for all k in K.}
+#' \item{asw}{The ASW values associated with the effOSil clusterings.}
+#' \item{nIter}{The numbers of iterations needed for convergence.}
 #' }
 #'
 #' @details
-#' This function implements the exact Optimum Silhouette (OSil) algorithm proposed by Batool & Hennig (2021).
-#' However, it is O(N) times faster than the original OSil algorithm at the cost of storing O(kN) additional values.
+#' This function implements the Efficient Optimum Silhouette (effOSil) algorithm, an O(N) runtime improvement of
+#' the original, computationally expensive OSil algorithm proposed by Batool & Hennig (2021) (N is the number of
+#' observations). An implementation of the original OSil algorithm is also available for run time comparisions.
 #'
 #'
 #' @examples
-#' x = iris[,-5]
-#' dx = dist(x)
-#' effOSil_clustering = effOSil(dx, 3, initMethod = "average")
-#' plot(x, col = effOSil_clustering$Clustering)
+#' dx = dist(faithful)
+#' effC = effOSil(dx, 2:8)
+#' par(mfrow = c(2,1))
+#' plot(faithful, col = effC$best_clustering, pch = 4)
+#' plot(2:8, effC$asw, type = "l", xlab = "k", ylab = "ASW")
 #'
 #' @references
 #' Batool, F. and Hennig, C., 2021. Clustering with the average silhouette width. Computational Statistics & Data Analysis, 158, p.107190.
 #'
-#' @importFrom cluster pam
-#' @importFrom stats hclust cutree dist
+#' @importFrom stats dist
 #'
 #' @author Minh Long Nguyen \email{edelweiss611428@gmail.com}
 #' @export
 
-effOSil = function(dx, k, initClustering = NULL, initMethod = "average"){
+effOSil = function(dx, K = 2:12, initMethod = "average", variant = "efficient"){
 
   if(inherits(dx, "dist") == TRUE){
     N = attr(dx, "Size")
   } else{
-    stop("effOSil only inputs a distance matrix of class 'dist'")
+    stop("effOSil only inputs a distance matrix of class 'dist'!")
   }
 
-  if((!is.numeric(k)) | (length(k)!=1)){
-    stop("k must be a number")
+  nK = length(K)
+
+  if((!is.numeric(K)) | (nK == 0)){
+    stop("K must be an integer vector!")
   }
 
-  k = as.integer(k)
-  if(k > N){
-    stop("k cannot be larger than the number of observations")
-  } else if(k == 1){
-    stop("k must be larger than 1")
+  K = as.integer(K)
+  nuniqueK = length(unique(K))
+  minK = min(K)
+  maxK = max(K)
+
+  if(nuniqueK != nK){
+    stop("Duplicated number of clusters!")
+  } else if(minK <= 1){
+    stop("The number of clusters must be larger than 1!")
+  } else if(maxK > N){
+    stop("The number of clusters cannot be larger than the number of observations!")
   }
 
-  if(!is.null(initClustering)){
+  if(length(variant) != 1){
+    stop("Only ONE variant could be specified!")
+  }
 
-    initClustering = as.integer(initClustering)
+  clusterings = matrix(integer(N*nK), nrow = N)
+  nIter = integer(nK)
+  asw = numeric(nK)
+  colnames(clusterings) = K
+  names(asw) = K
+  names(nIter) = K
 
-    if(length(initClustering) != N|
-       length(unique(initClustering)) != k |
-       min(initClustering) != 1 |
-       max(initClustering) != k){
-      stop("Not a valid initialized clustering!")
-    }
-
-    return(.effOSilCpp(dx, initClustering-1L, N,k))
-
+  if(variant == "efficient"){
+    FUNC = function(dx, initC, N, k){return(.effOSilCpp(dx, initC, N, k))}
+  } else if(variant == "original"){
+    FUNC = function(dx, initC, N, k){return(.OSilCpp(dx, initC, N, k))}
   } else{
+    stop("The variant is not supported!")
+  }
 
-    initClustering = Init(dx,k, initMethod)$Clustering - 1L
-    return(.effOSilCpp(dx, initClustering, N,k))
+
+  for(i in 1:nK){
+    init = Init(dx, K[i], initMethod)$clustering - 1L
+    OSilres = FUNC(dx, init, N, K[i])
+    clusterings[,i] = OSilres$Clustering
+    asw[i] = OSilres$ASW
+    nIter[i] = OSilres$nIter
 
   }
+
+  idx_max = which.max(asw)
+  best_asw = asw[idx_max]
+  best_clustering = clusterings[,idx_max]
+  k = K[idx_max]
+
+  return(list(best_clustering = best_clustering, best_asw = best_asw, k = k,
+              clusterings = clusterings, asw = asw, nIter = nIter))
+
 }
+
 
 

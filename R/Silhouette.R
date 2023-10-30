@@ -1,12 +1,13 @@
 #' @name Silhouette
 #' @title Silhouette Width
 #'
-#' @description  This function computes the Silhouette Widths of all data points in the dataset.
+#' @description  This function computes the Silhouette Widths for all data points in the dataset.
 #'
 #' @usage Silhouette(C, dx)
 #'
-#' @param C A clustering solution. It must be an integer vector of k unique values 1,2,...,k.
-#' @param dx  A "dist" object, which can be obtained by the "dist" function.
+#' @param C An integer vector specifying a k-partition of the dataset. min(C) must be 1
+#' and max(C) must be k.
+#' @param dx  A "dist" object, which can be computed using stats::dist().
 #'
 #' @return A numeric matrix of class "silhouette" containing three columns
 #' \describe{
@@ -15,12 +16,12 @@
 #' \item{sil_width}{The silhouette widths of data points.}
 #' }
 #'
+#'
 #' @examples
 #' library("cluster")
-#' x = iris[,-5]
-#' dx = dist(x)
-#' C = pam(dx, 3)$clustering
-#' Silhouette(C,dx)
+#' dx = dist(faithful)
+#' C = pam(dx, 2)$clustering
+#' plot(Silhouette(C,dx))
 #'
 #' @references
 #' Rousseeuw, P.J. (1987) Silhouettes: A graphical aid to the interpretation and
@@ -28,16 +29,17 @@
 #'
 #' @importFrom cluster pam
 #' @importFrom stats dist
+#'
 #' @author Minh Long Nguyen \email{edelweiss611428@gmail.com}
 #' @export
 
 Silhouette = function (C, dx){
-  cll <- match.call()
+  cll = match.call()
   if (inherits(dx, "dist") == TRUE) {
     N = attr(dx, "Size")
   }
   else {
-    stop("ASW only inputs a distance matrix of class 'dist'.")
+    stop("Silhouette only inputs a distance matrix of class 'dist'.")
   }
   k = length(unique(C))
   C = as.integer(C)

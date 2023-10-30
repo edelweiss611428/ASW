@@ -1,4 +1,4 @@
-# Efficient and Scalable Clustering Algorithms for Optimizing the Average Silhouette Width
+# Clustering Algorithms for Optimizing the Average Silhouette Width
 
 ### Installation
 ```

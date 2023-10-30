@@ -4,48 +4,50 @@
 \alias{scalOSil}
 \title{The Scalable Optimum Silhouette algorithm}
 \usage{
-scalOSil(dx, k, n = "default", rep = 5, initMethod = "average")
+scalOSil(dx, K, n, ns, rep, initMethod, variant)
 }
 \arguments{
-\item{dx}{A "dist" object, which can be obtained by the "dist" function.}
+\item{dx}{A "dist" object, which can be computed using stats::dist().}
 
-\item{k}{The number of clusters.}
+\item{K}{An integer vector (or scalar) specifying the numbers of clusters. By default, K = 2:12.}
 
-\item{n}{The sample size. By default, n = ceiling(0.2*N).}
+\item{n}{An integer specifying the sample size. If not specified (NULL), n is set to 0.2*N where
+N is the number of observations.}
 
-\item{rep}{The number of scalOSil instances. By default, rep = 5.}
+\item{ns}{An integer specifying the number of random samples used in each instance. By default, ns = 1.}
 
-\item{initMethod}{A character vector specifying initialization methods. It must contain only supported methods:
-one of the two combined methods "multiple1" and "multiple2"; or any combination of of "pam", "average", "single",
-"complete", "ward.D", "ward.D2", "mcquitty", "median", and "centroid". See ?Init for more details.}
+\item{rep}{An integer specifying the number of scalOSil instances. By default, rep = 10.}
+
+\item{initMethod}{A character vector (or string) specifying initialization methods. By default,
+initMethod = "average". See ?Init for more details.}
+
+\item{variant}{A character string specifying a variant. Options include "scalable" and "original".
+If variant = "original", the original FOSil algorithm is used. If variant = "scalable", scalOSil is used.
+By default, variant = "scalable".}
 }
 \value{
 \describe{
-\item{Clustering}{Final clustering.}
-\item{ASW}{The ASW of the scalOSil clustering w.r.t. dx.}
+\item{best_clustering}{The scalOSil clustering achieving the highest ASW value.}
+\item{best_asw}{The highest ASW value.}
+\item{k}{The estimated number of clusters.}
+\item{clusterings}{The scalOSil clustering solutions for all k in K.}
+\item{asw}{The ASW values associated with the scalOSil clusterings.}
 }
 }
 \description{
-This function implements the Scalable Optimum Silhouette (scalOSil) algorithm.
+This function implements the Scalable Optimum Silhouette algorithm.
 }
 \details{
-The scalOSil algorithm is an approximation algorithm of effOSil based on subsetting. It is an improved version of FOSil (Batool & Hennig 2021).
-Both the algorithms consists of two steps: partial clustering (PC) and classification (C).
-
-In the PC-step of scalOSil, effOSil is applied to a random subset of the dataset, obtaining a subset S and its effOSil
-clustering C_S. In the C-step of scalOSil, each unassigned data point is classified into one of the clusters in C_S in such
-a way that the ASW is maximized.
-
-Unlike FOSil, scalOSil runs many instances, specified by the parameter "rep", and for each instance, scalOSil only runs the
-PC-step once. Moreover, the PC-step of scalOSil scales quadratically in n, while that of FOSil scales cubically in n, and
-the C-step of scalOSil scales linearly in n, while that of FOSil scales quadratically in n. These allow scalOSil to handle
-much larger datasets.
+This function implements the Scalable Optimum Silhouette (scalOSil) algorithm, an O(n) runtime improvement of
+the original, computationally expensive Fast OSil (FOSil) algorithm proposed by Batool & Hennig (2021) (n is
+the sample size). An implementation of the original FOSil algorithm is also available for run time comparisions.
 }
 \examples{
-x = iris[,-5]
-dx = dist(x)
-scalOSil_clustering = scalOSil(dx, 3, initMethod = "average")
-plot(x, col = scalOSil_clustering$Clustering)
+dx = dist(faithful)
+scalC = scalOSil(dx, 2:8)
+par(mfrow = c(2,1))
+plot(faithful, col = scalC$best_clustering, pch = 4)
+plot(2:8, scalC$asw, xlab = "k", ylab = "ASW")
 
 }
 \references{

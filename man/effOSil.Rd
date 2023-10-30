@@ -4,39 +4,44 @@
 \alias{effOSil}
 \title{The Efficient Optimum Silhouette algorithm}
 \usage{
-effOSil(dx, k, initClustering = NULL, initMethod = "average")
+effOSil(dx, K, initMethod, variant)
 }
 \arguments{
-\item{dx}{A "dist" object, which can be obtained by the "dist" function.}
+\item{dx}{A "dist" object, which can be computed using stats::dist().}
 
-\item{k}{The number of clusters.}
+\item{K}{An integer vector (or scalar) specifying the numbers of clusters. By default, K = 2:12.}
 
-\item{initClustering}{An initialized clustering. It must be an numeric vector of k unique values 1,2,...,k.
-By default, initClustering is set to NULL. If initClustering is NULL, initMethod is used instead; otherwise, initClustering is used.}
+\item{initMethod}{A character vector (or string) specifying initialization methods.
+By default, initMethod = "average". See ?Init for more details.}
 
-\item{initMethod}{A character vector specifying initialization methods. It must contain only supported methods:
-one of the two combined methods "multiple1" and "multiple2"; or any combination of of "pam", "average", "single",
-"complete", "ward.D", "ward.D2", "mcquitty", "median", and "centroid". See ?Init for more details.}
+\item{variant}{A character string specifying a variant. Options include "efficient" and "original".
+If variant = "original", the original OSil algorithm is used. If variant = "efficient", effOSil is used.
+By default, variant = "efficient".}
 }
 \value{
 \describe{
-\item{Clustering}{The OSil clustering solution.}
-\item{ASW}{The ASW associated with the OSil clustering.}
-\item{nIter}{The number of iterations needed for convergence.}
+\item{best_clustering}{The effOSil clustering achieving the highest ASW value.}
+\item{best_asw}{The highest ASW value.}
+\item{k}{The estimated number of clusters.}
+\item{clusterings}{The effOSil clustering solutions for all k in K.}
+\item{asw}{The ASW values associated with the effOSil clusterings.}
+\item{nIter}{The numbers of iterations needed for convergence.}
 }
 }
 \description{
-This function implements the exact Optimum Silhouette (OSil) algorithm.
+This function implements the Efficient Optimum Silhouette (effOSil) algorithm.
 }
 \details{
-This function implements the exact Optimum Silhouette (OSil) algorithm proposed by Batool & Hennig (2021).
-However, it is O(N) times faster than the original OSil algorithm at the cost of storing O(kN) additional values.
+This function implements the Efficient Optimum Silhouette (effOSil) algorithm, an O(N) runtime improvement of
+the original, computationally expensive OSil algorithm proposed by Batool & Hennig (2021) (N is the number of
+observations). An implementation of the original OSil algorithm is also available for run time comparisions.
 }
 \examples{
-x = iris[,-5]
-dx = dist(x)
-effOSil_clustering = effOSil(dx, 3, initMethod = "average")
-plot(x, col = effOSil_clustering$Clustering)
+dx = dist(faithful)
+effC = effOSil(dx, 2:8)
+par(mfrow = c(2,1))
+plot(faithful, col = effC$best_clustering, pch = 4)
+plot(2:8, effC$asw, xlab = "k", ylab = "ASW")
 
 }
 \references{

@@ -12,7 +12,7 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 // ASWCpp
 double ASWCpp(IntegerVector C, NumericVector dist, int N, int k);
-RcppExport SEXP _EfficientOASW_ASWCpp(SEXP CSEXP, SEXP distSEXP, SEXP NSEXP, SEXP kSEXP) {
+RcppExport SEXP _ASW_ASWCpp(SEXP CSEXP, SEXP distSEXP, SEXP NSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -26,7 +26,7 @@ END_RCPP
 }
 // subDistCpp
 NumericVector subDistCpp(NumericVector dist, IntegerVector idx, bool diag, bool upper, int N, int n);
-RcppExport SEXP _EfficientOASW_subDistCpp(SEXP distSEXP, SEXP idxSEXP, SEXP diagSEXP, SEXP upperSEXP, SEXP NSEXP, SEXP nSEXP) {
+RcppExport SEXP _ASW_subDistCpp(SEXP distSEXP, SEXP idxSEXP, SEXP diagSEXP, SEXP upperSEXP, SEXP NSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -42,7 +42,7 @@ END_RCPP
 }
 // SWCpp
 List SWCpp(IntegerVector C, NumericVector dist, int N, int k);
-RcppExport SEXP _EfficientOASW_SWCpp(SEXP CSEXP, SEXP distSEXP, SEXP NSEXP, SEXP kSEXP) {
+RcppExport SEXP _ASW_SWCpp(SEXP CSEXP, SEXP distSEXP, SEXP NSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -56,7 +56,7 @@ END_RCPP
 }
 // effOSilCpp
 List effOSilCpp(NumericVector dist, IntegerVector iC, int N, int k);
-RcppExport SEXP _EfficientOASW_effOSilCpp(SEXP distSEXP, SEXP iCSEXP, SEXP NSEXP, SEXP kSEXP) {
+RcppExport SEXP _ASW_effOSilCpp(SEXP distSEXP, SEXP iCSEXP, SEXP NSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -70,7 +70,7 @@ END_RCPP
 }
 // OSilCpp
 List OSilCpp(NumericVector dist, IntegerVector iC, int N, int k);
-RcppExport SEXP _EfficientOASW_OSilCpp(SEXP distSEXP, SEXP iCSEXP, SEXP NSEXP, SEXP kSEXP) {
+RcppExport SEXP _ASW_OSilCpp(SEXP distSEXP, SEXP iCSEXP, SEXP NSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -84,7 +84,7 @@ END_RCPP
 }
 // scalOSil_PC_Step
 List scalOSil_PC_Step(NumericVector dist, IntegerVector iC, int N, int k);
-RcppExport SEXP _EfficientOASW_scalOSil_PC_Step(SEXP distSEXP, SEXP iCSEXP, SEXP NSEXP, SEXP kSEXP) {
+RcppExport SEXP _ASW_scalOSil_PC_Step(SEXP distSEXP, SEXP iCSEXP, SEXP NSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -98,7 +98,7 @@ END_RCPP
 }
 // scalOSil_C_Step
 IntegerVector scalOSil_C_Step(NumericVector dist, int k, List PC_result, IntegerVector idxPC, IntegerVector idxC, int n1, int n2, int N);
-RcppExport SEXP _EfficientOASW_scalOSil_C_Step(SEXP distSEXP, SEXP kSEXP, SEXP PC_resultSEXP, SEXP idxPCSEXP, SEXP idxCSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP NSEXP) {
+RcppExport SEXP _ASW_scalOSil_C_Step(SEXP distSEXP, SEXP kSEXP, SEXP PC_resultSEXP, SEXP idxPCSEXP, SEXP idxCSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP NSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -116,7 +116,7 @@ END_RCPP
 }
 // FOSil_PC_Step
 List FOSil_PC_Step(NumericVector dist, IntegerVector iC, int N, int k);
-RcppExport SEXP _EfficientOASW_FOSil_PC_Step(SEXP distSEXP, SEXP iCSEXP, SEXP NSEXP, SEXP kSEXP) {
+RcppExport SEXP _ASW_FOSil_PC_Step(SEXP distSEXP, SEXP iCSEXP, SEXP NSEXP, SEXP kSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -130,7 +130,7 @@ END_RCPP
 }
 // FOSil_C_Step
 IntegerVector FOSil_C_Step(NumericVector dist, NumericVector distPC, int k, List PC_result, IntegerVector idxPC, IntegerVector idxC, int n1, int n2, int N);
-RcppExport SEXP _EfficientOASW_FOSil_C_Step(SEXP distSEXP, SEXP distPCSEXP, SEXP kSEXP, SEXP PC_resultSEXP, SEXP idxPCSEXP, SEXP idxCSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP NSEXP) {
+RcppExport SEXP _ASW_FOSil_C_Step(SEXP distSEXP, SEXP distPCSEXP, SEXP kSEXP, SEXP PC_resultSEXP, SEXP idxPCSEXP, SEXP idxCSEXP, SEXP n1SEXP, SEXP n2SEXP, SEXP NSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -147,21 +147,37 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// PAMSilCpp
+List PAMSilCpp(NumericVector dist, IntegerVector C, IntegerVector medoids, int N, int k);
+RcppExport SEXP _ASW_PAMSilCpp(SEXP distSEXP, SEXP CSEXP, SEXP medoidsSEXP, SEXP NSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type dist(distSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type C(CSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type medoids(medoidsSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(PAMSilCpp(dist, C, medoids, N, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_EfficientOASW_ASWCpp", (DL_FUNC) &_EfficientOASW_ASWCpp, 4},
-    {"_EfficientOASW_subDistCpp", (DL_FUNC) &_EfficientOASW_subDistCpp, 6},
-    {"_EfficientOASW_SWCpp", (DL_FUNC) &_EfficientOASW_SWCpp, 4},
-    {"_EfficientOASW_effOSilCpp", (DL_FUNC) &_EfficientOASW_effOSilCpp, 4},
-    {"_EfficientOASW_OSilCpp", (DL_FUNC) &_EfficientOASW_OSilCpp, 4},
-    {"_EfficientOASW_scalOSil_PC_Step", (DL_FUNC) &_EfficientOASW_scalOSil_PC_Step, 4},
-    {"_EfficientOASW_scalOSil_C_Step", (DL_FUNC) &_EfficientOASW_scalOSil_C_Step, 8},
-    {"_EfficientOASW_FOSil_PC_Step", (DL_FUNC) &_EfficientOASW_FOSil_PC_Step, 4},
-    {"_EfficientOASW_FOSil_C_Step", (DL_FUNC) &_EfficientOASW_FOSil_C_Step, 9},
+    {"_ASW_ASWCpp", (DL_FUNC) &_ASW_ASWCpp, 4},
+    {"_ASW_subDistCpp", (DL_FUNC) &_ASW_subDistCpp, 6},
+    {"_ASW_SWCpp", (DL_FUNC) &_ASW_SWCpp, 4},
+    {"_ASW_effOSilCpp", (DL_FUNC) &_ASW_effOSilCpp, 4},
+    {"_ASW_OSilCpp", (DL_FUNC) &_ASW_OSilCpp, 4},
+    {"_ASW_scalOSil_PC_Step", (DL_FUNC) &_ASW_scalOSil_PC_Step, 4},
+    {"_ASW_scalOSil_C_Step", (DL_FUNC) &_ASW_scalOSil_C_Step, 8},
+    {"_ASW_FOSil_PC_Step", (DL_FUNC) &_ASW_FOSil_PC_Step, 4},
+    {"_ASW_FOSil_C_Step", (DL_FUNC) &_ASW_FOSil_C_Step, 9},
+    {"_ASW_PAMSilCpp", (DL_FUNC) &_ASW_PAMSilCpp, 5},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_EfficientOASW(DllInfo *dll) {
+RcppExport void R_init_ASW(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
