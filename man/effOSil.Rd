@@ -41,7 +41,7 @@ dx = dist(faithful)
 effC = effOSil(dx, 2:8)
 par(mfrow = c(2,1))
 plot(faithful, col = effC$best_clustering, pch = 4)
-plot(2:8, effC$asw, xlab = "k", ylab = "ASW")
+plot(2:8, effC$asw, type = "l", xlab = "k", ylab = "ASW")
 
 }
 \references{

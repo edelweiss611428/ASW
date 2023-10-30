@@ -47,7 +47,7 @@ dx = dist(faithful)
 scalC = scalOSil(dx, 2:8)
 par(mfrow = c(2,1))
 plot(faithful, col = scalC$best_clustering, pch = 4)
-plot(2:8, scalC$asw, xlab = "k", ylab = "ASW")
+plot(2:8, scalC$asw, type = "l", xlab = "k", ylab = "ASW")
 
 }
 \references{

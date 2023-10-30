@@ -35,7 +35,7 @@ dx = dist(faithful)
 pamsilC = PAMSil(dx, 2:8)
 par(mfrow = c(2,1))
 plot(faithful, col = pamsilC$best_clustering, pch = 4)
-plot(2:8, pamsilC$asw, xlab = "k", ylab = "ASW")
+plot(2:8, pamsilC$asw, type = "l", xlab = "k", ylab = "ASW")
 
 }
 \references{
