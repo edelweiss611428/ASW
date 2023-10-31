@@ -15,11 +15,11 @@
 #'
 #' @return
 #' \describe{
-#' \item{best_clustering}{The effOSil clustering achieving the highest ASW value.}
+#' \item{best_clustering}{The clustering achieving the highest ASW value.}
 #' \item{best_asw}{The highest ASW value.}
 #' \item{k}{The estimated number of clusters.}
-#' \item{clusterings}{The effOSil clustering solutions for all k in K.}
-#' \item{asw}{The ASW values associated with the effOSil clusterings.}
+#' \item{clusterings}{The effOSil clusterings for all k in K.}
+#' \item{asw}{The ASW values associated with the clusterings.}
 #' \item{nIter}{The numbers of iterations needed for convergence.}
 #' }
 #'

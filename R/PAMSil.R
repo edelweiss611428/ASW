@@ -10,12 +10,12 @@
 #'
 #' @return
 #' \describe{
-#' \item{best_clustering}{The PAMSil clustering achieving the highest ASW value.}
+#' \item{best_clustering}{The clustering achieving the highest ASW value.}
 #' \item{best_asw}{The highest ASW value.}
-#' \item{best_medoids}{The medoids associated with the clustering maximize the ASW.}
+#' \item{best_medoids}{The medoids associated with the clustering maximizing the ASW.}
 #' \item{k}{The estimated number of clusters.}
-#' \item{clusterings}{The PAMSil clustering solutions for all k in K.}
-#' \item{asw}{The ASW values associated with the PAMSil clusterings.}
+#' \item{clusterings}{The PAMSil clusterings for all k in K.}
+#' \item{asw}{The ASW values associated with the clusterings.}
 #' \item{medoids}{The medoids associated with the clustering solutions.}
 #' \item{nIter}{The numbers of iterations needed for convergence.}
 #' }

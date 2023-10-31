@@ -19,11 +19,11 @@
 #'
 #' @return
 #' \describe{
-#' \item{best_clustering}{The scalOSil clustering achieving the highest ASW value.}
+#' \item{best_clustering}{The clustering achieving the highest ASW value.}
 #' \item{best_asw}{The highest ASW value.}
 #' \item{k}{The estimated number of clusters.}
-#' \item{clusterings}{The scalOSil clustering solutions for all k in K.}
-#' \item{asw}{The ASW values associated with the scalOSil clusterings.}
+#' \item{clusterings}{The scalOSil clusterings for all k in K.}
+#' \item{asw}{The ASW values associated with the clusterings.}
 #' }
 #'
 #' @details
