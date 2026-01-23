@@ -272,7 +272,7 @@ void BSHCalc(NumericVector diC, IntegerVector ldiC, int NdiC, double &b, double 
     //swap(ls,lh)
     tl = lh;
     ls = lh;
-    ls = tl;
+    lh = tl;
   }
 
   for(int i = 3; i < NdiC;i++){
@@ -390,12 +390,17 @@ double UpdateASW(NumericVector UCTdist, IntegerVector C, NumericVector dist, int
     for(int l = 0; l < N; l++){
       lk = l*k;
       int l2 = updC[l];
-      td = dist[indexing(N, l, i)];
+
       if(i == l){
         a = UCTdist[lk+j]/Nj[j];
         b = UCTdist[lk+l1]/(Nj[l1]-1);
         ASW += (b - a)/std::max(b, a);
-      } else if(l2 == j){
+        continue;
+      }
+
+      td = dist[indexing(N, l, i)];
+
+      if(l2 == j){
         a = (UCTdist[lk+j] + td)/Nj[j];
         b = (UCTdist[lk+l1] - td)/(Nj[l1]-1);
         ASW += (b - a)/std::max(b, a);
@@ -417,7 +422,6 @@ double UpdateASW(NumericVector UCTdist, IntegerVector C, NumericVector dist, int
 
       lk = l*k;
       l2 = updC[l];
-      td = dist[indexing(N, l, i)];
       if(l == i){ //x_l in Cl1; x_l = x_i
         a = UCTdist[lk+j]/Nj[j];
 
@@ -428,7 +432,12 @@ double UpdateASW(NumericVector UCTdist, IntegerVector C, NumericVector dist, int
         }
         ASW += (b - a)/std::max(b, a);
         //space for readability
-      } else if(l2 == j){ //x_l in Cj; x_l != x_i
+        continue;
+      }
+
+      td = dist[indexing(N, l, i)];
+
+      if(l2 == j){ //x_l in Cj; x_l != x_i
 
         a = (UCTdist[lk+j] + td)/Nj[j];
         temp = (UCTdist[lk+l1] - td)/(Nj[l1] - 1);
