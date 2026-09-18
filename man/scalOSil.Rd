@@ -2,60 +2,95 @@
 % Please edit documentation in R/scalOSil.R
 \name{scalOSil}
 \alias{scalOSil}
-\title{The Scalable Optimum Silhouette Algorithm}
+\title{The Scalable Optimum Silhouette algorithm}
 \usage{
-scalOSil(dx, K, n, ns, rep, initMethod, variant)
+scalOSil(
+  dx,
+  K = 2:12,
+  n = NULL,
+  ns = 10,
+  rep = 1,
+  initMethod = "average",
+  variant = c("scalable", "original")
+)
 }
 \arguments{
-\item{dx}{A dist object, which can be computed using the stats::dist() function.}
+\item{dx}{A \code{dist} object, as returned by \code{\link[stats:dist]{stats::dist()}}.}
 
-\item{K}{An integer vector specifying the number of clusters. By default, K = 2:12.}
+\item{K}{An integer vector specifying the numbers of clusters to consider.
+Defaults to \code{2:12}.}
 
-\item{n}{An integer specifying the sample size. If not specified, n = 0.1*N where
-N is the number of observations.}
+\item{n}{The subsample size. Defaults to \code{ceiling(0.1 * N)}, where \code{N} is the
+number of observations.}
 
-\item{ns}{An integer specifying the number of random samples in each instance. By default, ns = 10.}
+\item{ns}{The number of subsamples drawn per instance. Defaults to \code{10}.}
 
-\item{rep}{An integer specifying the number of scalOSil instances. By default, rep = 1.}
+\item{rep}{The number of scalOSil instances. Defaults to \code{1}.}
 
-\item{initMethod}{A character vector specifying initialisation methods. By default,
-initMethod = "average"; however, to achieve the best initialisation in terms of the ASW,
-various initialisation methods should be used (e.g., initMethod = c("single", "average", "complete", "pam")).
-See ?Init for more details.}
+\item{initMethod}{A character vector of initialisation methods. Defaults to
+\code{"average"}. See \link{Init}.}
 
-\item{variant}{An algorithmic variant. Options include "scalable" and "original". By default, variant = "scalable", indicating that scalOSil is used.
-If variant = "original", the original, computationally expensive FOSil algorithm is used.}
+\item{variant}{Either \code{"scalable"} (the default), which uses scalOSil, or
+\code{"original"}, which uses the original FOSil algorithm. Both classify
+observations by the same rule; \code{"original"} is provided for comparison and is
+far slower.}
 }
 \value{
+An object of class \code{"ASW"}, a list with components:
 \describe{
-\item{best_clustering}{The clustering achieving the highest ASW value.}
+\item{best_clustering}{An integer vector giving the clustering that
+achieves the highest ASW.}
 \item{best_asw}{The highest ASW value.}
 \item{k}{The estimated number of clusters.}
-\item{clusterings}{The scalOSil clusterings for all k in K.}
-\item{asw}{The ASW values associated with the clusterings.}
+\item{clusterings}{An integer matrix with one column per element of \code{K}.}
+\item{asw}{A numeric vector of ASW values, one per element of \code{K}.}
+\item{n}{The subsample size used.}
+\item{method}{The name of the algorithm used.}
+\item{call}{The matched call.}
 }
 }
 \description{
-This function implements the Scalable Optimum Silhouette (scalOSil) algorithm.
+Clusters a distance matrix by maximising the Average Silhouette
+Width (ASW), using the Scalable Optimum Silhouette (scalOSil) algorithm.
+Intended for data sets too large for \link{effOSil}.
 }
 \details{
-This function implements the Scalable Optimum Silhouette (scalOSil) algorithm, an O(n) runtime improvement of
-the original, computationally expensive Fast OSil (FOSil) algorithm proposed by Batool & Hennig (2021) where n is
-the sub-sample size. This function also implements the FOSil algorithm for comparision purporses.
+scalOSil follows the two-step structure of FOSil (Batool & Hennig,
+2021): a partial clustering step, which runs \link{effOSil} on a subsample of size
+\code{n}, and a classification step, which assigns each remaining observation to
+the cluster maximising the ASW of the partial clustering together with that
+observation. Observations are classified independently of one another, so the
+order of classification does not matter.
+
+The classification step returns exactly the same assignments as FOSil, but
+evaluates each candidate in \eqn{O(n)} rather than \eqn{O(n^2)} time, giving
+an \eqn{O(n)} reduction in its runtime.
+
+\code{ns} subsamples are drawn per instance and the one achieving the highest ASW
+in the partial clustering step is carried forward. \code{rep} instances are run
+and the one achieving the highest ASW overall is returned. This function uses
+the random number generator; call \code{\link[=set.seed]{set.seed()}} beforehand for reproducible
+results.
 }
 \examples{
+set.seed(59)
 x = scale(faithful)
 dx = dist(x)
-scalOSil_clustering = scalOSil(dx = dx, K = 2:12, n = ceiling(0.25*nrow(x)), ns = 10, rep = 1)
-set.seed(59)
-par(mfrow = c(1,2))
-plot(faithful, col = scalOSil_clustering$best_clustering, pch = scalOSil_clustering$best_clustering)
-plot(2:12, scalOSil_clustering$asw, type = "l", xlab = "k", ylab = "ASW")
-par(mfrow = c(1,1))
+fit = scalOSil(dx = dx, K = 2:8, n = ceiling(0.25 * nrow(x)), ns = 10, rep = 1)
+
+oldpar = par(mfrow = c(1, 2))
+plot(faithful, col = fit$best_clustering, pch = fit$best_clustering)
+plot(2:8, fit$asw, type = "l", xlab = "k", ylab = "ASW")
+par(oldpar)
 
 }
 \references{
-Batool, F. and Hennig, C., 2021. Clustering with the average silhouette width. Computational Statistics & Data Analysis, 158, p.107190.
+Batool, F. and Hennig, C. (2021). Clustering with the average silhouette
+width. \emph{Computational Statistics & Data Analysis}, 158, 107190.
+\doi{10.1016/j.csda.2021.107190}
+}
+\seealso{
+\link{effOSil}, \link{PAMSil}, \link{Init}, \link{asw}, \link{Silhouette}.
 }
 \author{
 Minh Long Nguyen \email{edelweiss611428@gmail.com}

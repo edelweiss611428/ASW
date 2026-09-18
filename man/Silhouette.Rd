@@ -2,37 +2,52 @@
 % Please edit documentation in R/Silhouette.R
 \name{Silhouette}
 \alias{Silhouette}
-\title{Silhouette Width}
+\title{Silhouette widths}
 \usage{
 Silhouette(C, dx)
 }
 \arguments{
-\item{C}{An integer vector specifying a clustering solution. min(C) must be 1
-and max(C) must be k.}
+\item{C}{An integer vector giving a clustering, with labels \code{1} to \code{k}.}
 
-\item{dx}{A dist object, which can be computed using the stats::dist() function.}
+\item{dx}{A \code{dist} object, as returned by \code{\link[stats:dist]{stats::dist()}}.}
 }
 \value{
-A numeric matrix of class "silhouette" containing three columns
+A numeric matrix of class \code{"silhouette"} with one row per
+observation and three columns:
 \describe{
-\item{cluster}{A clustering of the dataset.}
-\item{neighbor}{The clustering labels of the nearest clusters for all data points.}
-\item{sil_width}{The silhouette widths of data points.}
+\item{cluster}{The observation's cluster.}
+\item{neighbor}{The nearest other cluster.}
+\item{sil_width}{The silhouette width.}
 }
+The result can be passed to the \code{plot()}, \code{print()} and \code{summary()} methods
+of the \pkg{cluster} package.
 }
 \description{
-This function computes the Silhouette Widths given a distance matrix and a clustering solution.
+Computes the silhouette width of every observation, together
+with its neighbouring cluster.
+}
+\details{
+Observations in singleton clusters are given a silhouette width of
+0, following Rousseeuw (1987); their \code{neighbor} is still reported, since it
+remains well defined. Coincident observations, for which both the within- and
+between-cluster mean distances are zero, are also given a width of 0.
 }
 \examples{
-library("cluster")
-x = scale(faithful)
-dx = dist(x)
-pam_clustering = pam(dx, 2)$clustering
-plot(Silhouette(pam_clustering,dx))
+dx = dist(scale(faithful))
+fit = effOSil(dx, K = 2:5)
+sw = Silhouette(fit$best_clustering, dx)
+
+summary(sw)
+plot(sw)
 
 }
 \references{
-Rousseeuw, P.J., 1987. Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. Journal of computational and applied mathematics, 20, pp.53-65.
+Rousseeuw, P. J. (1987). Silhouettes: a graphical aid to the interpretation
+and validation of cluster analysis. \emph{Journal of Computational and
+Applied Mathematics}, 20, 53-65. \doi{10.1016/0377-0427(87)90125-7}
+}
+\seealso{
+\link{asw} for the average, \link{effOSil}, \code{\link[cluster:silhouette]{cluster::silhouette()}}.
 }
 \author{
 Minh Long Nguyen \email{edelweiss611428@gmail.com}

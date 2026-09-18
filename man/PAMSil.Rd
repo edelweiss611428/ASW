@@ -4,45 +4,61 @@
 \alias{PAMSil}
 \title{The PAMSil algorithm}
 \usage{
-PAMSil(dx, K)
+PAMSil(dx, K = 2:12)
 }
 \arguments{
-\item{dx}{A dist object, which can be computed using the stats::dist() function.}
+\item{dx}{A \code{dist} object, as returned by \code{\link[stats:dist]{stats::dist()}}.}
 
-\item{K}{An integer vector specifying the number of clusters. By default, K = 2:12.}
+\item{K}{An integer vector specifying the numbers of clusters to consider.
+Defaults to \code{2:12}.}
 }
 \value{
+An object of class \code{"ASW"}, a list with components:
 \describe{
-\item{best_clustering}{The clustering achieving the highest ASW value.}
+\item{best_clustering}{An integer vector giving the clustering that
+achieves the highest ASW.}
 \item{best_asw}{The highest ASW value.}
-\item{best_medoids}{The medoids associated with the clustering maximizing the ASW.}
+\item{best_medoids}{The medoids of the clustering maximising the ASW.}
 \item{k}{The estimated number of clusters.}
-\item{clusterings}{The PAMSil clusterings for all k in K.}
-\item{asw}{The ASW values associated with the clusterings.}
-\item{medoids}{The medoids associated with the clustering solutions.}
-\item{nIter}{The numbers of iterations needed for convergence.}
+\item{clusterings}{An integer matrix with one column per element of \code{K}.}
+\item{asw}{A numeric vector of ASW values, one per element of \code{K}.}
+\item{medoids}{A list of medoid index vectors, one per element of \code{K}.}
+\item{nIter}{An integer vector of iteration counts to convergence.}
+\item{method}{The name of the algorithm used.}
+\item{call}{The matched call.}
 }
 }
 \description{
-This function implements the PAMSil algorithm.
+Clusters a distance matrix by maximising the Average Silhouette
+Width (ASW) over partitions around medoids, using the PAMSil algorithm of
+Van der Laan, Pollard & Bryan (2003).
 }
 \details{
-This function implements the PAMSil algorithm proposed by Van der Laan & Pollard (2003),
-a k-medoid clustering algorithm whose objective function is the ASW.
+PAMSil is a k-medoid algorithm whose objective function is the ASW.
+It is initialised with \code{\link[cluster:pam]{cluster::pam()}} and then repeatedly replaces the
+medoid whose replacement increases the ASW most, stopping when no replacement
+improves it. Because it searches over medoid assignments rather than over
+arbitrary partitions, it is more constrained than \link{effOSil} and will usually
+attain a lower ASW.
 }
 \examples{
-library("cluster")
 x = scale(faithful)
 dx = dist(x)
-PAMSil_clustering = PAMSil(dx = dx, K = 2:12)
-par(mfrow = c(1,2))
-plot(faithful, col = PAMSil_clustering$best_clustering, pch = PAMSil_clustering$best_clustering)
-plot(2:12, PAMSil_clustering$asw, type = "l", xlab = "k", ylab = "ASW")
-par(mfrow = c(1,1))
+fit = PAMSil(dx = dx, K = 2:8)
+
+oldpar = par(mfrow = c(1, 2))
+plot(faithful, col = fit$best_clustering, pch = fit$best_clustering)
+plot(2:8, fit$asw, type = "l", xlab = "k", ylab = "ASW")
+par(oldpar)
 
 }
 \references{
-Van der Laan, M., Pollard, K. and Bryan, J., 2003. A new partitioning around medoids algorithm. Journal of Statistical Computation and Simulation, 73(8), pp.575-584.
+Van der Laan, M., Pollard, K. and Bryan, J. (2003). A new partitioning around
+medoids algorithm. \emph{Journal of Statistical Computation and Simulation},
+73(8), 575-584. \doi{10.1080/0094965031000136012}
+}
+\seealso{
+\link{effOSil}, \link{scalOSil}, \link{asw}, \link{Silhouette}.
 }
 \author{
 Minh Long Nguyen \email{edelweiss611428@gmail.com}

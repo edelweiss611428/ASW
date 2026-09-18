@@ -1,15 +1,28 @@
 Package: ASW
-Title: Clustering Algorithms for Optimising the Average Silhouette
-        Width
-Version: 1.0.4
-Author: Minh Long, Nguyen <edelweiss611428@gmail.com>
-Maintainer: Minh Long, Nguyen <edelweiss611428@gmail.com>
-Description: This package implements clustering algorithms for optimising the Average Silhouette Width.
+Type: Package
+Title: Clustering by Optimising the Average Silhouette Width
+Version: 1.0.5
+Authors@R: person(given = "Minh Long",
+                  family = "Nguyen",
+                  role = c("aut", "cre"),
+                  email = "edelweiss611428@gmail.com")
+Description: Exact and computationally efficient algorithms for clustering by
+    maximising the Average Silhouette Width (Rousseeuw, 1987,
+    <doi:10.1016/0377-0427(87)90125-7>). Provides the 'OSil' and 'FOSil'
+    algorithms of Batool and Hennig (2021) <doi:10.1016/j.csda.2021.107190>
+    and the 'PAMSil' algorithm of Van der Laan, Pollard and Bryan (2003)
+    <doi:10.1080/0094965031000136012>, together with 'effOSil' and
+    'scalOSil', which return the same clusterings as 'OSil' and 'FOSil'
+    respectively at a fraction of the computational cost.
 License: GPL (>= 3)
 Encoding: UTF-8
+URL: https://github.com/edelweiss611428/ASW
+BugReports: https://github.com/edelweiss611428/ASW/issues
+Depends: R (>= 3.5.0)
+Imports: Rcpp, cluster, stats
+LinkingTo: Rcpp
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-LinkingTo: Rcpp
-Imports: Rcpp, cluster, stats
 NeedsCompilation: yes
-Packaged: 2024-10-30 16:12:51 UTC; longn

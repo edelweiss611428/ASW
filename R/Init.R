@@ -1,98 +1,107 @@
 #' @name Init
-#' @title Initialisation methods for the Optimum Silhouette algorithm.
+#' @title Initialisation for the Optimum Silhouette algorithms
 #'
-#' @description  This function computes an initialisation for the Optimum Silhouette algorithm.
+#' @description Runs one or more clustering methods and returns the solution
+#' achieving the highest Average Silhouette Width (ASW), for use as an
+#' initialisation by [effOSil] and [scalOSil].
 #'
-#' @usage Init(dx, k, initMethod)
-#'
-#' @param dx  dx A dist object, which can be computed using the stats::dist() function.
+#' @param dx A `dist` object, as returned by [stats::dist()].
 #' @param k An integer specifying the number of clusters.
-#' @param initMethod A character vector (or string) specifying initialisation methods. Options include any
-#' combination of "pam", "average", "single", "complete", "ward.D", "ward.D2", "mcquitty", "median", and "centroid".
-#' By default, initMethod = "average".
+#' @param initMethod A character vector of methods to try. Any combination of
+#' `"pam"` and the agglomeration methods accepted by [stats::hclust()]:
+#' `"average"`, `"single"`, `"complete"`, `"ward.D"`, `"ward.D2"`,
+#' `"mcquitty"`, `"median"` and `"centroid"`. Defaults to `"average"`.
 #'
-#' @return
+#' @return A list with components:
 #' \describe{
-#' \item{clustering}{An initialised clustering.}
-#' \item{asw}{The ASW associated with the initialised clustering.}
-#' \item{method}{The "best" initialisation method.}
+#'   \item{clustering}{An integer vector giving the clustering achieving the
+#'     highest ASW among the methods tried.}
+#'   \item{asw}{The ASW of that clustering.}
+#'   \item{method}{The method that produced it.}
+#'   \item{all_asw}{A named numeric vector of the ASW attained by each method.}
 #' }
 #'
-#' @details This function computes an initialisation for the Optimum Silhouette algorithm, but it can be used as
-#' a stand-alone clustering method (i.e., run different clustering algorithms and select the clustering solution maximising the ASW).
+#' @details Passing several methods gives a better starting point than any one
+#' of them, at the cost of running each; Batool (2019) found this matters for
+#' the quality of the final OSil solution. The function is also usable on its
+#' own, as a way of picking among several clusterings by ASW.
 #'
+#' `"median"` and `"centroid"` assume squared Euclidean dissimilarities and can
+#' produce inversions otherwise; [stats::hclust()] does not check this.
 #'
 #' @examples
-#' library("cluster")
-#' x = scale(faithful)
-#' dx = dist(x)
-#' InitClustering = Init(dx, 2, c("pam", "average", "complete", "single"))
-#' plot(faithful, col = InitClustering$clustering, pch = InitClustering$clustering)
-#' print(paste(InitClustering$method, "achieves the highest ASW value"))
+#' dx = dist(scale(faithful))
+#' fit = Init(dx, 2, c("pam", "average", "complete", "single"))
+#'
+#' fit$method
+#' fit$all_asw
+#' plot(faithful, col = fit$clustering, pch = fit$clustering)
 #'
 #' @references
-#' Batool, F. and Hennig, C., 2021. Clustering with the average silhouette width. Computational Statistics & Data Analysis, 158, p.107190.
-#' Batool, F., 2019. Initialization methods for optimum average silhouette width clustering. arXiv preprint arXiv:1910.08644.
+#' Batool, F. (2019). Initialization methods for optimum average silhouette
+#' width clustering. \emph{arXiv preprint} arXiv:1910.08644.
+#' \doi{10.48550/arXiv.1910.08644}
+#'
+#' Batool, F. and Hennig, C. (2021). Clustering with the average silhouette
+#' width. \emph{Computational Statistics & Data Analysis}, 158, 107190.
+#' \doi{10.1016/j.csda.2021.107190}
+#'
+#' @seealso [effOSil], [scalOSil], [asw].
 #'
 #' @importFrom cluster pam
-#' @importFrom stats hclust cutree dist
+#' @importFrom stats hclust cutree setNames
 #'
-#' @author Minh Long Nguyen \email{edelweiss611428@gmail.com}
+#' @author Minh Long Nguyen \email{edelweiss611428@@gmail.com}
 #' @export
 
 Init = function(dx, k, initMethod = "average"){
 
-  if(inherits(dx, "dist") == TRUE){
-    N = attr(dx, "Size")
-  } else{
-    stop("Init only inputs a distance matrix of class 'dist'")
-  }
+  N = .checkDist(dx)
+  k = .checkCount(k, "k", lower = 2L)
 
-  if((!is.numeric(k)) | (length(k)!=1)){
-    stop("k must be an integer")
-  }
-
-  k = as.integer(k)
   if(k > N){
-    stop("k cannot be larger than the number of observations")
-  } else if(k == 1){
-    stop("k must be larger than 1")
+    stop("The number of clusters cannot exceed the number of observations.", call. = FALSE)
   }
 
-  if(!is.vector(initMethod, "character")){
-    stop("initMethod must be a character vector (or string) specifying initialization methods!")
+  initMethod = .checkInitMethod(initMethod)
+  initMethod = unique(initMethod)
+
+  supported = c("pam", "average", "single", "complete", "ward.D",
+                "ward.D2", "mcquitty", "median", "centroid")
+  unsupported = setdiff(initMethod, supported)
+
+  if(length(unsupported) > 0L){
+    stop(sprintf("Unsupported initialisation method(s): %s. Supported: %s.",
+                 paste(unsupported, collapse = ", "),
+                 paste(supported, collapse = ", ")), call. = FALSE)
   }
 
-  if(length(initMethod) == 0){
-    stop("At least one initMethod needs to be specified!")
-  }
-
-  supportedMethods = c("pam", "average", "single", "complete", "ward.D",
-                       "ward.D2", "mcquitty", "median", "centroid")
-
-  if(!setequal(intersect(initMethod,supportedMethods), initMethod)){
-    stop("initMethod contains unsupported methods!")
-  }
-
-  bestASW = -1
+  allASW = setNames(numeric(length(initMethod)), initMethod)
+  bestASW = -Inf
+  bestClustering = NULL
+  bestMethod = NA_character_
 
   for(i in seq_along(initMethod)){
 
-    if(initMethod[i] == "pam"){
-      tempClustering = pam(dx, k)$clustering
-      tempASW = .ASWCpp(tempClustering-1L, dx, N, k)
-    } else{
-      tempClustering = cutree(hclust(dx, initMethod[i]),k)
-      tempASW = .ASWCpp(tempClustering-1L, dx, N, k)
+    clustering = if(initMethod[i] == "pam"){
+      pam(dx, k)$clustering
+    } else {
+      cutree(hclust(dx, method = initMethod[i]), k)
     }
+
+    clustering = as.integer(clustering)
+    tempASW = .ASWCpp(clustering - 1L, dx, N, k)
+    allASW[i] = tempASW
 
     if(tempASW > bestASW){
       bestASW = tempASW
-      bestClustering = tempClustering
+      bestClustering = clustering
       bestMethod = initMethod[i]
     }
+
   }
 
-  return(list(clustering = bestClustering, asw = bestASW, method = bestMethod))
+  list(clustering = bestClustering, asw = bestASW, method = bestMethod,
+       all_asw = allASW)
 
 }

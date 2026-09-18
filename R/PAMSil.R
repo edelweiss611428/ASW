@@ -1,107 +1,79 @@
 #' @name PAMSil
 #' @title The PAMSil algorithm
 #'
-#' @description  This function implements the PAMSil algorithm.
+#' @description Clusters a distance matrix by maximising the Average Silhouette
+#' Width (ASW) over partitions around medoids, using the PAMSil algorithm of
+#' Van der Laan, Pollard & Bryan (2003).
 #'
-#' @usage PAMSil(dx, K)
+#' @param dx A `dist` object, as returned by [stats::dist()].
+#' @param K An integer vector specifying the numbers of clusters to consider.
+#' Defaults to `2:12`.
 #'
-#' @param dx A dist object, which can be computed using the stats::dist() function.
-#' @param K An integer vector specifying the number of clusters. By default, K = 2:12.
-#'
-#' @return
+#' @return An object of class `"ASW"`, a list with components:
 #' \describe{
-#' \item{best_clustering}{The clustering achieving the highest ASW value.}
-#' \item{best_asw}{The highest ASW value.}
-#' \item{best_medoids}{The medoids associated with the clustering maximizing the ASW.}
-#' \item{k}{The estimated number of clusters.}
-#' \item{clusterings}{The PAMSil clusterings for all k in K.}
-#' \item{asw}{The ASW values associated with the clusterings.}
-#' \item{medoids}{The medoids associated with the clustering solutions.}
-#' \item{nIter}{The numbers of iterations needed for convergence.}
+#'   \item{best_clustering}{An integer vector giving the clustering that
+#'     achieves the highest ASW.}
+#'   \item{best_asw}{The highest ASW value.}
+#'   \item{best_medoids}{The medoids of the clustering maximising the ASW.}
+#'   \item{k}{The estimated number of clusters.}
+#'   \item{clusterings}{An integer matrix with one column per element of `K`.}
+#'   \item{asw}{A numeric vector of ASW values, one per element of `K`.}
+#'   \item{medoids}{A list of medoid index vectors, one per element of `K`.}
+#'   \item{nIter}{An integer vector of iteration counts to convergence.}
+#'   \item{method}{The name of the algorithm used.}
+#'   \item{call}{The matched call.}
 #' }
 #'
-#' @details
-#' This function implements the PAMSil algorithm proposed by Van der Laan & Pollard (2003),
-#' a k-medoid clustering algorithm whose objective function is the ASW.
+#' @details PAMSil is a k-medoid algorithm whose objective function is the ASW.
+#' It is initialised with [cluster::pam()] and then repeatedly replaces the
+#' medoid whose replacement increases the ASW most, stopping when no replacement
+#' improves it. Because it searches over medoid assignments rather than over
+#' arbitrary partitions, it is more constrained than [effOSil] and will usually
+#' attain a lower ASW.
 #'
 #' @examples
-#' library("cluster")
 #' x = scale(faithful)
 #' dx = dist(x)
-#' PAMSil_clustering = PAMSil(dx = dx, K = 2:12)
-#' par(mfrow = c(1,2))
-#' plot(faithful, col = PAMSil_clustering$best_clustering, pch = PAMSil_clustering$best_clustering)
-#' plot(2:12, PAMSil_clustering$asw, type = "l", xlab = "k", ylab = "ASW")
-#' par(mfrow = c(1,1))
+#' fit = PAMSil(dx = dx, K = 2:8)
+#'
+#' oldpar = par(mfrow = c(1, 2))
+#' plot(faithful, col = fit$best_clustering, pch = fit$best_clustering)
+#' plot(2:8, fit$asw, type = "l", xlab = "k", ylab = "ASW")
+#' par(oldpar)
 #'
 #' @references
-#' Van der Laan, M., Pollard, K. and Bryan, J., 2003. A new partitioning around medoids algorithm. Journal of Statistical Computation and Simulation, 73(8), pp.575-584.
+#' Van der Laan, M., Pollard, K. and Bryan, J. (2003). A new partitioning around
+#' medoids algorithm. \emph{Journal of Statistical Computation and Simulation},
+#' 73(8), 575-584. \doi{10.1080/0094965031000136012}
 #'
-#' @importFrom cluster pam
-#' @importFrom stats dist
+#' @seealso [effOSil], [scalOSil], [asw], [Silhouette].
 #'
-#' @author Minh Long Nguyen \email{edelweiss611428@gmail.com}
+#' @author Minh Long Nguyen \email{edelweiss611428@@gmail.com}
 #' @export
 
 PAMSil = function(dx, K = 2:12){
 
-  if(inherits(dx, "dist") == TRUE){
-    N = attr(dx, "Size")
-  } else{
-    stop("effOSil only inputs a distance matrix of class 'dist'!")
-  }
+  N = .checkDist(dx)
+  K = .checkK(K, N)
 
   nK = length(K)
+  clusterings = matrix(NA_integer_, nrow = N, ncol = nK, dimnames = list(NULL, K))
+  asw = setNames(numeric(nK), K)
+  nIter = setNames(integer(nK), K)
+  medoids = setNames(vector("list", nK), K)
 
-  if((!is.numeric(K)) | (nK == 0)){
-    stop("K must be an integer vector!")
+  for(i in seq_len(nK)){
+    init = pam(dx, K[i])
+    res = .PAMSilCpp(dx, init$clustering - 1L, init$id.med - 1L, N, K[i])
+    clusterings[, i] = res$Clustering
+    asw[i] = res$ASW
+    nIter[i] = res$nIter
+    medoids[[i]] = res$medoids
   }
 
-  K = as.integer(K)
-  nuniqueK = length(unique(K))
-  minK = min(K)
-  maxK = max(K)
+  idxMax = which.max(asw)
 
-  if(nuniqueK != nK){
-    stop("Duplicated number of clusters!")
-  } else if(minK <= 1){
-    stop("The number of clusters must be larger than 1!")
-  } else if(maxK > N){
-    stop("The number of clusters cannot be larger than the number of observations!")
-  }
-
-  clusterings = matrix(integer(N*nK), nrow = N)
-  nIter = integer(nK)
-  asw = numeric(nK)
-  medoids = vector("list", length = nK)
-  colnames(clusterings) = K
-  names(asw) = K
-  names(nIter) = K
-  names(medoids) = K
-
-  for(i in 1:nK){
-
-    PAM = pam(dx, K[i])
-    PAMSilres = .PAMSilCpp(dx, PAM$clustering-1L, PAM$id.med-1L, N, K[i])
-    clusterings[,i] = PAMSilres$Clustering
-    asw[i] = PAMSilres$ASW
-    nIter[i] = PAMSilres$nIter
-    medoids[[i]] = PAMSilres$medoids
-
-  }
-
-  idx_max = which.max(asw)
-  best_asw = asw[idx_max]
-  best_clustering = clusterings[,idx_max]
-  k = K[idx_max]
-  best_medoids = medoids[[idx_max]]
-
-  return(list(best_clustering = best_clustering, best_asw = best_asw, best_medoids = best_medoids, k = k,
-              clusterings = clusterings, asw = asw, medoids = medoids, nIter = nIter))
+  .aswResult(clusterings, asw, K, "PAMSil", match.call(),
+             list(best_medoids = medoids[[idxMax]], medoids = medoids, nIter = nIter))
 
 }
-
-
-
-
-

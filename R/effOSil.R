@@ -1,118 +1,94 @@
 #' @name effOSil
 #' @title The Efficient Optimum Silhouette algorithm
 #'
-#' @description  This function implements the Efficient Optimum Silhouette (effOSil) algorithm.
+#' @description Clusters a distance matrix by maximising the Average Silhouette
+#' Width (ASW), using the Efficient Optimum Silhouette (effOSil) algorithm.
 #'
-#' @usage effOSil(dx, K, initMethod, variant)
+#' @param dx A `dist` object, as returned by [stats::dist()].
+#' @param K An integer vector specifying the numbers of clusters to consider.
+#' Defaults to `2:12`.
+#' @param initMethod A character vector of initialisation methods. Defaults to
+#' `"average"`; to obtain a better initialisation in terms of the ASW, several
+#' methods may be given, for instance
+#' `c("single", "average", "complete", "pam")`. See [Init] for the available
+#' methods.
+#' @param variant Either `"efficient"` (the default), which uses effOSil, or
+#' `"original"`, which uses the original OSil algorithm. Both return the same
+#' clustering; `"original"` is provided for comparison and is far slower.
 #'
-#' @param dx A dist object, which can be computed using the stats::dist() function.
-#' @param K An integer vector specifying the number of clusters. By default, K = 2:12.
-#' @param initMethod A character vector specifying initialisation methods. By default,
-#' initMethod = "average"; however, to achieve the best initialisation in terms of the ASW,
-#' various initialisation methods should be used (e.g., initMethod = c("single", "average", "complete", "pam")).
-#' See ?Init for more details.
-#' @param variant An algorithmic variant. Options include "efficient" and "original". By default, variant = "efficient", indicating that effOSil is used.
-#' If variant = "original", the original, computationally expensive OSil algorithm is used.
-#'
-#' @return
+#' @return An object of class `"ASW"`, a list with components:
 #' \describe{
-#' \item{best_clustering}{The clustering achieving the highest ASW value.}
-#' \item{best_asw}{The highest ASW value.}
-#' \item{k}{The estimated number of clusters.}
-#' \item{clusterings}{The effOSil clusterings for all k in K.}
-#' \item{asw}{The ASW values associated with the clusterings.}
-#' \item{nIter}{The numbers of iterations needed for convergence.}
+#'   \item{best_clustering}{An integer vector giving the clustering that
+#'     achieves the highest ASW.}
+#'   \item{best_asw}{The highest ASW value.}
+#'   \item{k}{The estimated number of clusters.}
+#'   \item{clusterings}{An integer matrix with one column per element of `K`.}
+#'   \item{asw}{A numeric vector of ASW values, one per element of `K`.}
+#'   \item{nIter}{An integer vector of iteration counts to convergence.}
+#'   \item{method}{The name of the algorithm used.}
+#'   \item{call}{The matched call.}
 #' }
 #'
-#' @details
-#' This function implements the Efficient Optimum Silhouette (effOSil) algorithm, an O(N) runtime improvement of
-#' the original, computationally expensive Fast OSil (FOSil) algorithm proposed by Batool & Hennig (2021) where N is
-#' the number of observations. This function also implements the OSil algorithm for comparision purporses.
+#' @details effOSil returns exactly the same clustering as the OSil algorithm of
+#' Batool & Hennig (2021), but evaluates each candidate swap in \eqn{O(N)}
+#' rather than \eqn{O(N^2)} time by caching, for every observation, the mean
+#' distance to its own cluster and to the three nearest other clusters. This
+#' gives an \eqn{O(N)} reduction in overall runtime, where \eqn{N} is the number
+#' of observations.
 #'
+#' Both variants use steepest ascent: each iteration evaluates every
+#' single-observation reassignment and applies the one that increases the ASW
+#' most, stopping when no reassignment improves it. Clusters are never allowed
+#' to become empty.
+#'
+#' On data containing duplicated observations the ASW can have exact ties, in
+#' which case `"efficient"` and `"original"` may resolve a tied reassignment
+#' differently and converge to different local optima of equal or near-equal
+#' ASW.
 #'
 #' @examples
 #' x = scale(faithful)
 #' dx = dist(x)
-#' effOSil_clustering = effOSil(dx = dx, K = 2:12)
-#' par(mfrow = c(1,2))
-#' plot(faithful, col = effOSil_clustering$best_clustering, pch = effOSil_clustering$best_clustering)
-#' plot(2:12, effOSil_clustering$asw, type = "l", xlab = "k", ylab = "ASW")
-#' par(mfrow = c(1,1))
+#' fit = effOSil(dx = dx, K = 2:8)
+#'
+#' oldpar = par(mfrow = c(1, 2))
+#' plot(faithful, col = fit$best_clustering, pch = fit$best_clustering)
+#' plot(2:8, fit$asw, type = "l", xlab = "k", ylab = "ASW")
+#' par(oldpar)
 #'
 #' @references
-#' Batool, F. and Hennig, C., 2021. Clustering with the average silhouette width. Computational Statistics & Data Analysis, 158, p.107190.
+#' Batool, F. and Hennig, C. (2021). Clustering with the average silhouette
+#' width. \emph{Computational Statistics & Data Analysis}, 158, 107190.
+#' \doi{10.1016/j.csda.2021.107190}
 #'
-#' @importFrom cluster pam
-#' @importFrom stats dist
+#' @seealso [scalOSil] for larger data sets, [PAMSil], [Init], [asw], [Silhouette].
 #'
-#' @author Minh Long Nguyen \email{edelweiss611428@gmail.com}
+#' @author Minh Long Nguyen \email{edelweiss611428@@gmail.com}
 #' @export
 
-effOSil = function(dx, K = 2:12, initMethod = "average", variant = "efficient"){
+effOSil = function(dx, K = 2:12, initMethod = "average",
+                   variant = c("efficient", "original")){
 
-  if(inherits(dx, "dist") == TRUE){
-    N = attr(dx, "Size")
-  } else{
-    stop("effOSil only inputs a distance matrix of class 'dist'!")
-  }
+  N = .checkDist(dx)
+  K = .checkK(K, N)
+  initMethod = .checkInitMethod(initMethod)
+  variant = match.arg(variant)
 
   nK = length(K)
+  clusterings = matrix(NA_integer_, nrow = N, ncol = nK, dimnames = list(NULL, K))
+  asw = setNames(numeric(nK), K)
+  nIter = setNames(integer(nK), K)
 
-  if((!is.numeric(K)) | (nK == 0)){
-    stop("K must be an integer vector!")
-  }
+  osil = if(variant == "efficient") .effOSilCpp else .OSilCpp
 
-  K = as.integer(K)
-  nuniqueK = length(unique(K))
-  minK = min(K)
-  maxK = max(K)
-
-  if(nuniqueK != nK){
-    stop("Duplicated number of clusters!")
-  } else if(minK <= 1){
-    stop("The number of clusters must be larger than 1!")
-  } else if(maxK > N){
-    stop("The number of clusters cannot be larger than the number of observations!")
-  }
-
-  if(length(variant) != 1){
-    stop("Only ONE variant could be specified!")
-  }
-
-  clusterings = matrix(integer(N*nK), nrow = N)
-  nIter = integer(nK)
-  asw = numeric(nK)
-  colnames(clusterings) = K
-  names(asw) = K
-  names(nIter) = K
-
-  if(variant == "efficient"){
-    FUNC = function(dx, initC, N, k){return(.effOSilCpp(dx, initC, N, k))}
-  } else if(variant == "original"){
-    FUNC = function(dx, initC, N, k){return(.OSilCpp(dx, initC, N, k))}
-  } else{
-    stop("The variant is not supported!")
-  }
-
-
-  for(i in 1:nK){
+  for(i in seq_len(nK)){
     init = Init(dx, K[i], initMethod)$clustering - 1L
-    OSilres = FUNC(dx, init, N, K[i])
-    clusterings[,i] = OSilres$Clustering
-    asw[i] = OSilres$ASW
-    nIter[i] = OSilres$nIter
-
+    res = osil(dx, init, N, K[i])
+    clusterings[, i] = res$Clustering
+    asw[i] = res$ASW
+    nIter[i] = res$nIter
   }
 
-  idx_max = which.max(asw)
-  best_asw = asw[idx_max]
-  best_clustering = clusterings[,idx_max]
-  k = K[idx_max]
-
-  return(list(best_clustering = best_clustering, best_asw = best_asw, k = k,
-              clusterings = clusterings, asw = asw, nIter = nIter))
+  .aswResult(clusterings, asw, K, "effOSil", match.call(), list(nIter = nIter))
 
 }
-
-
-

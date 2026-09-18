@@ -4,51 +4,83 @@
 \alias{effOSil}
 \title{The Efficient Optimum Silhouette algorithm}
 \usage{
-effOSil(dx, K, initMethod, variant)
+effOSil(
+  dx,
+  K = 2:12,
+  initMethod = "average",
+  variant = c("efficient", "original")
+)
 }
 \arguments{
-\item{dx}{A dist object, which can be computed using the stats::dist() function.}
+\item{dx}{A \code{dist} object, as returned by \code{\link[stats:dist]{stats::dist()}}.}
 
-\item{K}{An integer vector specifying the number of clusters. By default, K = 2:12.}
+\item{K}{An integer vector specifying the numbers of clusters to consider.
+Defaults to \code{2:12}.}
 
-\item{initMethod}{A character vector specifying initialisation methods. By default,
-initMethod = "average"; however, to achieve the best initialisation in terms of the ASW,
-various initialisation methods should be used (e.g., initMethod = c("single", "average", "complete", "pam")).
-See ?Init for more details.}
+\item{initMethod}{A character vector of initialisation methods. Defaults to
+\code{"average"}; to obtain a better initialisation in terms of the ASW, several
+methods may be given, for instance
+\code{c("single", "average", "complete", "pam")}. See \link{Init} for the available
+methods.}
 
-\item{variant}{An algorithmic variant. Options include "efficient" and "original". By default, variant = "efficient", indicating that effOSil is used.
-If variant = "original", the original, computationally expensive OSil algorithm is used.}
+\item{variant}{Either \code{"efficient"} (the default), which uses effOSil, or
+\code{"original"}, which uses the original OSil algorithm. Both return the same
+clustering; \code{"original"} is provided for comparison and is far slower.}
 }
 \value{
+An object of class \code{"ASW"}, a list with components:
 \describe{
-\item{best_clustering}{The clustering achieving the highest ASW value.}
+\item{best_clustering}{An integer vector giving the clustering that
+achieves the highest ASW.}
 \item{best_asw}{The highest ASW value.}
 \item{k}{The estimated number of clusters.}
-\item{clusterings}{The effOSil clusterings for all k in K.}
-\item{asw}{The ASW values associated with the clusterings.}
-\item{nIter}{The numbers of iterations needed for convergence.}
+\item{clusterings}{An integer matrix with one column per element of \code{K}.}
+\item{asw}{A numeric vector of ASW values, one per element of \code{K}.}
+\item{nIter}{An integer vector of iteration counts to convergence.}
+\item{method}{The name of the algorithm used.}
+\item{call}{The matched call.}
 }
 }
 \description{
-This function implements the Efficient Optimum Silhouette (effOSil) algorithm.
+Clusters a distance matrix by maximising the Average Silhouette
+Width (ASW), using the Efficient Optimum Silhouette (effOSil) algorithm.
 }
 \details{
-This function implements the Efficient Optimum Silhouette (effOSil) algorithm, an O(N) runtime improvement of
-the original, computationally expensive Fast OSil (FOSil) algorithm proposed by Batool & Hennig (2021) where N is
-the number of observations. This function also implements the OSil algorithm for comparision purporses.
+effOSil returns exactly the same clustering as the OSil algorithm of
+Batool & Hennig (2021), but evaluates each candidate swap in \eqn{O(N)}
+rather than \eqn{O(N^2)} time by caching, for every observation, the mean
+distance to its own cluster and to the three nearest other clusters. This
+gives an \eqn{O(N)} reduction in overall runtime, where \eqn{N} is the number
+of observations.
+
+Both variants use steepest ascent: each iteration evaluates every
+single-observation reassignment and applies the one that increases the ASW
+most, stopping when no reassignment improves it. Clusters are never allowed
+to become empty.
+
+On data containing duplicated observations the ASW can have exact ties, in
+which case \code{"efficient"} and \code{"original"} may resolve a tied reassignment
+differently and converge to different local optima of equal or near-equal
+ASW.
 }
 \examples{
 x = scale(faithful)
 dx = dist(x)
-effOSil_clustering = effOSil(dx = dx, K = 2:12)
-par(mfrow = c(1,2))
-plot(faithful, col = effOSil_clustering$best_clustering, pch = effOSil_clustering$best_clustering)
-plot(2:12, effOSil_clustering$asw, type = "l", xlab = "k", ylab = "ASW")
-par(mfrow = c(1,1))
+fit = effOSil(dx = dx, K = 2:8)
+
+oldpar = par(mfrow = c(1, 2))
+plot(faithful, col = fit$best_clustering, pch = fit$best_clustering)
+plot(2:8, fit$asw, type = "l", xlab = "k", ylab = "ASW")
+par(oldpar)
 
 }
 \references{
-Batool, F. and Hennig, C., 2021. Clustering with the average silhouette width. Computational Statistics & Data Analysis, 158, p.107190.
+Batool, F. and Hennig, C. (2021). Clustering with the average silhouette
+width. \emph{Computational Statistics & Data Analysis}, 158, 107190.
+\doi{10.1016/j.csda.2021.107190}
+}
+\seealso{
+\link{scalOSil} for larger data sets, \link{PAMSil}, \link{Init}, \link{asw}, \link{Silhouette}.
 }
 \author{
 Minh Long Nguyen \email{edelweiss611428@gmail.com}

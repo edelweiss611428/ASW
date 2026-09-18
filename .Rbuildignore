@@ -1,2 +1,5 @@
-^.*\.Rproj$
+^rupturesRcpp\.Rproj$
 ^\.Rproj\.user$
+^\.github$
+^LICENSE\.md$
+^ASW\.Rproj$

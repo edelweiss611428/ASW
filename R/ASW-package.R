@@ -1,5 +1,6 @@
-## usethis namespace: start
+#' @keywords internal
 #' @useDynLib ASW, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
-## usethis namespace: end
-NULL
+#' @importFrom cluster pam
+#' @importFrom stats setNames
+"_PACKAGE"

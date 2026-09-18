@@ -1,41 +1,69 @@
-# Clustering Algorithms for Optimising the Average Silhouette Width
+# ASW
 
-### Description
-This package implements clustering methods for optimising the Average Silhouette Width (ASW), including:
-- The PAMSil algorithm (Van der Laan & Pollard 2003), a k-medoid clustering algorithm for optimising the ASW.
-- The Efficient Optimum Silhouette algorithm (effOSil), which performs the exact Optimum Silhoutte clustering (Batool & Hennig 2021, OSil) but O(N) times faster, where N is the number of observations in the dataset.
-- The Scalable Optimum Silhouette algorithm (scalOSil), which performs the exact Fast Optimum Silhouette clustering (Batool & Hennig 2021, FOSil) but O(n) times faster, where n is the sub-sample size.
-- Automatic selection of the optimal clustering solution.
-- Automatic selection of the optimal number of clusters.
+Clustering by optimising the Average Silhouette Width.
 
-![10c4ad28-6fbc-4351-9a8c-00a3ada882ff](https://github.com/user-attachments/assets/0e3b6ecb-1d0d-4793-ab2e-8ef53c5708ae)
+The ASW is usually used to *validate* a clustering. It can also be optimised
+directly, which Batool & Hennig (2021) showed produces good clusterings — but
+their OSil algorithm costs `O(k N^3)` per iteration, which puts it out of reach
+well before most people expect. 
 
-### Installation
+This package implements `effOSil`, which returns the *same* clustering as OSil
+with an `O(N)` reduction in cost, and `scalOSil`, which does the same for FOSil.
 
-To install the package, Rtools and Rcpp are required. However, we have been unable to compile the ASW package under the latest version of Rcpp (Rcpp v. 1.0.13). Users should use older Rcpp versions (e.g., Rcpp v.1.0.12) in the meantime.
+| Function | Use when |
+|---|---|
+| `effOSil()` | the distance matrix fits in memory |
+| `scalOSil()` | it does not, or N is large enough that `effOSil()` is still slow |
+| `PAMSil()` | you want the medoid-based objective of Van der Laan et al. (2003) |
+| `Init()` | you want the best of several standard clusterings by ASW |
+| `asw()`, `Silhouette()` | you have a clustering and want to score it |
 
+```r
+library(ASW)
+
+dx  = dist(scale(faithful))
+fit = effOSil(dx, K = 2:12)
+
+fit$k                  # selected number of clusters
+fit$best_asw           # ASW attained
+plot(faithful, col = fit$best_clustering)
 ```
-install.packages("devtools")
-pkg = "https://cran.r-project.org/src/contrib/Archive/Rcpp/Rcpp_1.0.12.tar.gz"
-install.packages(pkg)
-devtools::install_github("edelweiss611428/ASW")
+
+Both `effOSil()` and `scalOSil()` take a `variant` argument selecting the
+original algorithm instead, for timing comparisons:
+
+```r
+system.time(effOSil(dx, K = 5, variant = "efficient"))
+system.time(effOSil(dx, K = 5, variant = "original"))
 ```
-To check the current Rcpp version, use
+
+## Installation
+
+```r
+# install.packages("remotes")
+remotes::install_github("edelweiss611428/ASW")
 ```
-Rcpp::getRcppVersion()
-```
 
-### Contact
+## Notes
 
-To report bugs or seek help with installation or running the package, please contact edelweiss611428@gmail.com.
+Observations in singleton clusters are given a silhouette width of 0, following
+Rousseeuw (1987), as are coincident observations for which both the within- and
+between-cluster mean distances are zero.
 
-### References
+`effOSil()` and OSil agree exactly on data without duplicated observations. When
+the data contains duplicates the ASW has exact ties, and the two may resolve a
+tied reassignment differently and converge to different local optima of equal or
+near-equal ASW. The same applies to `scalOSil()` and FOSil.
 
-[Batool, F. and Hennig, C., 2021. Clustering with the average silhouette width. Computational Statistics & Data Analysis, 158, p.107190.](https://www.sciencedirect.com/science/article/abs/pii/S0167947321000244)
+## References
 
-[Van der Laan, M., Pollard, K. and Bryan, J., 2003. A new partitioning around medoids algorithm. Journal of Statistical Computation and Simulation, 73(8), pp.575-584.](https://www.tandfonline.com/doi/abs/10.1080/0094965031000136012)
+Batool, F. and Hennig, C. (2021). Clustering with the average silhouette width.
+*Computational Statistics & Data Analysis*, 158, 107190.
 
-[Batool, F., 2019. Initialization methods for optimum average silhouette width clustering. arXiv preprint arXiv:1910.08644.](https://arxiv.org/abs/1910.08644)
+Rousseeuw, P. J. (1987). Silhouettes: a graphical aid to the interpretation and
+validation of cluster analysis. *Journal of Computational and Applied
+Mathematics*, 20, 53–65.
 
-[Rousseeuw, P.J., 1987. Silhouettes: a graphical aid to the interpretation and validation of cluster analysis. Journal of computational and applied mathematics, 20, pp.53-65.](https://www.sciencedirect.com/science/article/pii/0377042787901257)
-
+Van der Laan, M., Pollard, K. and Bryan, J. (2003). A new partitioning around
+medoids algorithm. *Journal of Statistical Computation and Simulation*, 73(8),
+575–584.

@@ -2,45 +2,64 @@
 % Please edit documentation in R/Init.R
 \name{Init}
 \alias{Init}
-\title{Initialisation methods for the Optimum Silhouette algorithm.}
+\title{Initialisation for the Optimum Silhouette algorithms}
 \usage{
-Init(dx, k, initMethod)
+Init(dx, k, initMethod = "average")
 }
 \arguments{
-\item{dx}{dx A dist object, which can be computed using the stats::dist() function.}
+\item{dx}{A \code{dist} object, as returned by \code{\link[stats:dist]{stats::dist()}}.}
 
 \item{k}{An integer specifying the number of clusters.}
 
-\item{initMethod}{A character vector (or string) specifying initialisation methods. Options include any
-combination of "pam", "average", "single", "complete", "ward.D", "ward.D2", "mcquitty", "median", and "centroid".
-By default, initMethod = "average".}
+\item{initMethod}{A character vector of methods to try. Any combination of
+\code{"pam"} and the agglomeration methods accepted by \code{\link[stats:hclust]{stats::hclust()}}:
+\code{"average"}, \code{"single"}, \code{"complete"}, \code{"ward.D"}, \code{"ward.D2"},
+\code{"mcquitty"}, \code{"median"} and \code{"centroid"}. Defaults to \code{"average"}.}
 }
 \value{
+A list with components:
 \describe{
-\item{clustering}{An initialised clustering.}
-\item{asw}{The ASW associated with the initialised clustering.}
-\item{method}{The "best" initialisation method.}
+\item{clustering}{An integer vector giving the clustering achieving the
+highest ASW among the methods tried.}
+\item{asw}{The ASW of that clustering.}
+\item{method}{The method that produced it.}
+\item{all_asw}{A named numeric vector of the ASW attained by each method.}
 }
 }
 \description{
-This function computes an initialisation for the Optimum Silhouette algorithm.
+Runs one or more clustering methods and returns the solution
+achieving the highest Average Silhouette Width (ASW), for use as an
+initialisation by \link{effOSil} and \link{scalOSil}.
 }
 \details{
-This function computes an initialisation for the Optimum Silhouette algorithm, but it can be used as
-a stand-alone clustering method (i.e., run different clustering algorithms and select the clustering solution maximising the ASW).
+Passing several methods gives a better starting point than any one
+of them, at the cost of running each; Batool (2019) found this matters for
+the quality of the final OSil solution. The function is also usable on its
+own, as a way of picking among several clusterings by ASW.
+
+\code{"median"} and \code{"centroid"} assume squared Euclidean dissimilarities and can
+produce inversions otherwise; \code{\link[stats:hclust]{stats::hclust()}} does not check this.
 }
 \examples{
-library("cluster")
-x = scale(faithful)
-dx = dist(x)
-InitClustering = Init(dx, 2, c("pam", "average", "complete", "single"))
-plot(faithful, col = InitClustering$clustering, pch = InitClustering$clustering)
-print(paste(InitClustering$method, "achieves the highest ASW value"))
+dx = dist(scale(faithful))
+fit = Init(dx, 2, c("pam", "average", "complete", "single"))
+
+fit$method
+fit$all_asw
+plot(faithful, col = fit$clustering, pch = fit$clustering)
 
 }
 \references{
-Batool, F. and Hennig, C., 2021. Clustering with the average silhouette width. Computational Statistics & Data Analysis, 158, p.107190.
-Batool, F., 2019. Initialization methods for optimum average silhouette width clustering. arXiv preprint arXiv:1910.08644.
+Batool, F. (2019). Initialization methods for optimum average silhouette
+width clustering. \emph{arXiv preprint} arXiv:1910.08644.
+\doi{10.48550/arXiv.1910.08644}
+
+Batool, F. and Hennig, C. (2021). Clustering with the average silhouette
+width. \emph{Computational Statistics & Data Analysis}, 158, 107190.
+\doi{10.1016/j.csda.2021.107190}
+}
+\seealso{
+\link{effOSil}, \link{scalOSil}, \link{asw}.
 }
 \author{
 Minh Long Nguyen \email{edelweiss611428@gmail.com}
