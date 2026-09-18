@@ -1,17 +1,15 @@
 Package: ASW
 Type: Package
 Title: Clustering by Optimising the Average Silhouette Width
-Version: 1.0.5
+Version: 1.1.1
 Authors@R: person(given = "Minh Long",
                   family = "Nguyen",
                   role = c("aut", "cre"),
                   email = "edelweiss611428@gmail.com")
 Description: Exact and computationally efficient algorithms for clustering by
-    maximising the Average Silhouette Width (Rousseeuw, 1987,
-    <doi:10.1016/0377-0427(87)90125-7>). Provides the 'OSil' and 'FOSil'
-    algorithms of Batool and Hennig (2021) <doi:10.1016/j.csda.2021.107190>
-    and the 'PAMSil' algorithm of Van der Laan, Pollard and Bryan (2003)
-    <doi:10.1080/0094965031000136012>, together with 'effOSil' and
+    maximising the Average Silhouette Width (Rousseeuw, 1987). Provides the 
+    'OSil' and 'FOSil' algorithms of Batool and Hennig (2021) and the 'PAMSil' 
+    algorithm of Van der Laan et al. (2003), together with 'effOSil' and
     'scalOSil', which return the same clusterings as 'OSil' and 'FOSil'
     respectively at a fraction of the computational cost.
 License: GPL (>= 3)

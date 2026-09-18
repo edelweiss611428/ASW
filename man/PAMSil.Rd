@@ -44,7 +44,7 @@ attain a lower ASW.
 \examples{
 x = scale(faithful)
 dx = dist(x)
-fit = PAMSil(dx = dx, K = 2:8)
+fit = PAMSil(dx = dx, K = 2:6)
 
 oldpar = par(mfrow = c(1, 2))
 plot(faithful, col = fit$best_clustering, pch = fit$best_clustering)

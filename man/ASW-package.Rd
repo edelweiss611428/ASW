@@ -6,7 +6,7 @@
 \alias{ASW-package}
 \title{ASW: Clustering by Optimising the Average Silhouette Width}
 \description{
-Exact and computationally efficient algorithms for clustering by maximising the Average Silhouette Width (Rousseeuw, 1987, \doi{10.1016/0377-0427(87)90125-7}). Provides the 'OSil' and 'FOSil' algorithms of Batool and Hennig (2021) \doi{10.1016/j.csda.2021.107190} and the 'PAMSil' algorithm of Van der Laan, Pollard and Bryan (2003) \doi{10.1080/0094965031000136012}, together with 'effOSil' and 'scalOSil', which return the same clusterings as 'OSil' and 'FOSil' respectively at a fraction of the computational cost.
+Exact and computationally efficient algorithms for clustering by maximising the Average Silhouette Width (Rousseeuw, 1987). Provides the 'OSil' and 'FOSil' algorithms of Batool and Hennig (2021) and the 'PAMSil' algorithm of Van der Laan et al. (2003), together with 'effOSil' and 'scalOSil', which return the same clusterings as 'OSil' and 'FOSil' respectively at a fraction of the computational cost.
 }
 \seealso{
 Useful links:
