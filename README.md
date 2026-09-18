@@ -67,3 +67,10 @@ Mathematics*, 20, 53–65.
 Van der Laan, M., Pollard, K. and Bryan, J. (2003). A new partitioning around
 medoids algorithm. *Journal of Statistical Computation and Simulation*, 73(8),
 575–584.
+
+## Acknowledgement
+
+The author thanks Christian Hennig for supervising his undergraduate studies at
+the University of Bologna. That supervision shaped the author's thinking on model
+selection, cluster analysis and beyond, and led to this package and to future
+work. 
