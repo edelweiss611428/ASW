@@ -48,7 +48,7 @@ fit = PAMSil(dx = dx, K = 2:6)
 
 oldpar = par(mfrow = c(1, 2))
 plot(faithful, col = fit$best_clustering, pch = fit$best_clustering)
-plot(2:8, fit$asw, type = "l", xlab = "k", ylab = "ASW")
+plot(2:6, fit$asw, type = "l", xlab = "k", ylab = "ASW")
 par(oldpar)
 
 }
